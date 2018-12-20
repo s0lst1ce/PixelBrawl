@@ -12,7 +12,7 @@ The game is a multiplayer shared screen. The players all compete in a small aren
 
 __How to Play__:
 The game is played with 5 keys. Three to move up, left and right. Then one to pickup items and another to shoot. The last one is meant to crouch although this function has not been implemented in the alpha yet.
-The final version will contain a settings screen which will enable ti cutomize the keymaps. The defaults are as follow:
+The final version will contain a settings screen which will enable ti cutomize the keymaps.
 
 
 
