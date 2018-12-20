@@ -1,4 +1,5 @@
 **ROADMAP**
+
 *NB:* This roadmap is subject to change at any moment. If there's any feature you'd like me to add please post a comment before asking for a pull request for the roadmap.
 __v0.2-a2__:
 - Handle damage
