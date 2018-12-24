@@ -5,7 +5,7 @@
 **v0.2-a2**:
 - [x] Handle damage
 - [ ] Add a handler for different types of weapons/items 
-- [ ] Create a consistent firearms definition
+- [x] Create a consistent firearms definition
 - [ ] Add melee weapons
 - [ ] Add different types of projectiles & re-write Projectile sprite class
 
