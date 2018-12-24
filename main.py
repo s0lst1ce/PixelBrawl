@@ -34,6 +34,7 @@ class Game:
 		self.players = pgm.sprite.Group()
 		self.destructibles = pgm.sprite.Group()
 		self.non_crossable = pgm.sprite.Group()
+		self.damageables = pgm.sprite.Group()
 		#creating sprites
 		self.player_1 = Player(PLAYER_PROFILE_1)
 		self.p1 = Platform(0, HEIGHT-10, WIDTH, 10)
@@ -43,6 +44,7 @@ class Game:
 		self.test_wpn = Firearm(WIDTH/2, HEIGHT -20, 20, 10)
 		self.destr1 = Destructible(40, 0, 10 , HEIGHT)
 		#adding sprites to groups
+		#improve the structure of this section by adding groups to all_sprites
 		self.all_sprites.add(self.player_1)
 		self.all_sprites.add(self.p1)
 		self.all_sprites.add(self.p2)
@@ -61,7 +63,7 @@ class Game:
 		self.non_crossable.add(self.p4)
 		self.non_crossable.add(self.destr1)
 		self.weapons.add(self.test_wpn)
-		self.destructibles.add(self.destr1)
+		self.damageables.add(self.destr1)
 
 
 		print("Game has been STARTED")
@@ -88,7 +90,7 @@ class Game:
 		self.player_collisions = pgm.sprite.spritecollide(self.player_1, self.non_crossable, False)
 		#migth need to change that code to groupcollide() to handle all the players
 		self.item_collide = pgm.sprite.groupcollide(self.players, self.weapons, False, False)
-		self.destructibles_collide = pgm.sprite.groupcollide(self.destructibles, self.projectiles, False, True)
+		self.damageable_collisions = pgm.sprite.groupcollide(self.damageables, self.projectiles, False, False)
 
 		if self.player_collisions:
 			#print("self.player_1 has collided with", self.player_collisions[0], self.player_1.rect, self.player_1.vel)
@@ -125,8 +127,18 @@ class Game:
 			for self.player_on_item in self.item_collide.keys():
 				self.player_on_item.pickup(self.item_collide)
 
-		if self.destructibles_collide:
-			print("Bullet collissions", self.destructibles_collide)
+		if self.damageable_collisions:
+			print("Bullet collissions", self.damageable_collisions)
+			for self.dmg_collision in self.damageable_collisions.keys():
+				self.dmg_to_deal = 0
+				print("DMG", self.dmg_collision)
+				for self.hitting_projectile in self.damageable_collisions[self.dmg_collision]:
+					self.dmg_to_deal += self.hitting_projectile.damage
+					self.hitting_projectile.kill()
+
+				print("Sprite will be dealt {} damage points".format(self.dmg_to_deal))
+				self.dmg_collision.damage(self.dmg_to_deal)
+
 
 
 	def run(self):
