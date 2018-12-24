@@ -9,7 +9,7 @@ If you are intersted in helping in the development please write to me. Also plea
 The game is a multiplayer shared screen. The players all compete in a small arena and must be the last one standing in order to win. Teammatches are planned although I have not started working on them yet.
 
 **BEWARE** The game is in early development and currently non-functionnal.
-![v0.1-a1 Test map screenshot](https://github.com/NotaSmartDev/assets/capture.PNG)
+![v0.1-a1 Test map screenshot](https://raw.githubusercontent.com/NotaSmartDev/assets/master/Capture.PNG)
 
 ## How to Play:
 The game is played with 5 keys. Three to move up, left and right. Then one to pickup items and another to shoot. The last one is meant to crouch although this function has not been implemented in the alpha yet.
