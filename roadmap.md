@@ -29,24 +29,24 @@
 ### v0.5-a5:
 
 - [ ] Fix various bugs
- - [ ] Reload issues
- - [ ] Bullets which can pass through `non-crossable`
- - [ ] Players who can jump through `non-crossable` if they're too close
- - [ ] Lots of small bugfixes
+  - [ ] Reload issues
+  - [ ] Bullets which can pass through `non-crossable`
+  - [ ] Players who can jump through `non-crossable` if they're too close
+  - [ ] Lots of small bugfixes
 - [ ] Re-write collision block of the `update()` function to suit multiple players
 
 ### v0.6-a6:
 
 - [ ] Add GUI
- - [ ] Add Menus
-  - [ ] Start Game
-  - [ ] Options
-  - [ ] End of Game display
+  - [ ] Add Menus
+   - [ ] Start Game
+   - [ ] Options
+   - [ ] End of Game display
 
 
 ### v0.7-b1:
 - [ ] Replace Pygame rectangles by drawn sprites
- - [ ] Add animations
+  - [ ] Add animations
 - [ ] Add sound
 
 ### v0.8-b2:
