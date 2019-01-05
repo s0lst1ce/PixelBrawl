@@ -2,8 +2,10 @@
 
 import pygame as pgm
 import random
+import math
 from settings import *
 from sprites import *
+from dev_map_1 import world as world
 
 
 class Game:
@@ -18,59 +20,88 @@ class Game:
 		pgm.display.set_caption(TITLE)
 		#Clock
 		self.clock = pgm.time.Clock()
+		self.FIRST_TIME = pgm.time.get_ticks()
 		#Sprite group
 		self.running = True
-		print("Game has been initalised")
+		print("[{}:{}]: Game has been initalised".format(0,0))
+
+	def get_current_time(self, sec_or_min):
+		now_time = (pgm.time.get_ticks() - self.FIRST_TIME) /1000
+		print(now_time)
+		now_time_min = math.floor(now_time / 60) 
+		now_time_sec = math.floor(now_time % 60)
+		#now_time_hr = floor(now_time_min/60)
+		if sec_or_min == 0:
+			return now_time_min
+		else:
+			return now_time_sec
+		
+
 
 	def start(self):
+		''' Starts a bew game by creating all Pygame Sprites and Sprites
+		Groups '''
 		global projectiles_list
-		#starts a new game
-		#making sprites groups
-		self.all_sprites = pgm.sprite.Group()
-		self.platforms = pgm.sprite.Group()
-		self.projectiles = pgm.sprite.Group()
-		self.explosives = pgm.sprite.Group()
-		self.weapons = pgm.sprite.Group()
-		self.players = pgm.sprite.Group()
-		self.destructibles = pgm.sprite.Group()
-		self.non_crossable = pgm.sprite.Group()
-		self.damageables = pgm.sprite.Group()
+		self.all_sprites_group = pgm.sprite.Group()
+		self.platform_group = pgm.sprite.Group()
+		self.projectile_group = pgm.sprite.Group()
+		self.explosive_group = pgm.sprite.Group()
+		self.weapon_group = pgm.sprite.Group()
+		self.firearm_group = pgm.sprite.Group()
+		self.meleeweapon_group = pgm.sprite.Group()
+		self.player_group = pgm.sprite.Group()
+		self.destructible_group = pgm.sprite.Group()
+		self.non_crossable_group = pgm.sprite.Group()
+		self.damageable_group = pgm.sprite.Group()
+		
 		#creating sprites
-		self.player_1 = Player(PLAYER_PROFILE_1)
-		self.p1 = Platform(0, HEIGHT-10, WIDTH, 10)
-		self.p2 = Platform(30, 0, 10, HEIGHT - 10)
-		self.p3 = Platform(WIDTH-10, 0, 10, HEIGHT - 10)
-		self.p4 = Platform(WIDTH/2 -25, HEIGHT-100, 100, 10)
-		self.test_wpn = Firearm(WIDTH/2, HEIGHT -20, 20, 10)
-		self.destr1 = Destructible(40, 0, 10 , HEIGHT)
-		#adding sprites to groups
-		#improve the structure of this section by adding groups to all_sprites
-		self.all_sprites.add(self.player_1)
-		self.all_sprites.add(self.p1)
-		self.all_sprites.add(self.p2)
-		self.all_sprites.add(self.p3)
-		self.all_sprites.add(self.p4)
-		self.all_sprites.add(self.test_wpn)
-		self.all_sprites.add(self.destr1)
-		self.players.add(self.player_1)
-		self.platforms.add(self.p1)
-		self.platforms.add(self.p2)
-		self.platforms.add(self.p3)
-		self.platforms.add(self.p4)
-		self.non_crossable.add(self.p1)
-		self.non_crossable.add(self.p2)
-		self.non_crossable.add(self.p3)
-		self.non_crossable.add(self.p4)
-		self.non_crossable.add(self.destr1)
-		self.weapons.add(self.test_wpn)
-		self.damageables.add(self.destr1)
+		for self.sprite_type in world.keys():
+			self.sprite_number = 0
+			for self.sprite in world[self.sprite_type]:
+				self.sprite_generic_name = self.sprite_type.lower()
 
+				self.sprite_args = world[self.sprite_generic_name.title()][self.sprite_number]
+				self.current_sprite_full_name = str(self.sprite_generic_name+str(self.sprite_number))
+				self.current_sprite_str = ""
+				print(self.current_sprite_full_name, self.sprite)
+				for self.arg in self.sprite_args:
+					try:
+						self.arg = int(self.arg)
+						self.current_sprite_str = str(self.current_sprite_str + str(self.arg) + ",")
 
-		print("Game has been STARTED")
+					except ValueError as e:
+						print(e, " -> self.arg is a string")
+						self.current_sprite_str = str(self.current_sprite_str + str('''"{}"'''.format(self.arg)) + ",")
+					except TypeError as e:
+						print(e, "-> self.arg is a list")
+						self.current_sprite_str = str(self.current_sprite_str + str(self.arg)+ ",")
+
+				self.current_sprite_str_len = len(self.current_sprite_str)
+				self.current_sprite_str = self.current_sprite_str[:self.current_sprite_str_len-1]
+				self.current_sprite = eval(self.sprite_type+"({})".format(self.current_sprite_str))
+				self.__dict__[self.current_sprite_full_name] = self.current_sprite
+
+				#adding sprite to groups
+				self.all_sprites_group.add(self.current_sprite)
+				self.sprite_generic_name_group = str(self.sprite_generic_name)
+				eval("self."+self.sprite_generic_name_group+"_group"+".add(self.current_sprite)")
+				self.sprite_number +=1
+				print("{} dict is ->".format(self) ,self.__dict__)
+
+		#adding subgroups to main groups
+		self.weapon_group.add(self.firearm_group)
+		self.weapon_group.add(self.meleeweapon_group)
+		self.non_crossable_group.add(self.platform_group)
+		self.non_crossable_group.add(self.destructible_group)
+		self.damageable_group.add(self.destructible_group)
+		self.damageable_group.add(self.player_group)
+		self.damageable_group.add(self.explosive_group)
+
+		print("[{}:{}] Game has been STARTED".format(self.get_current_time(0), self.get_current_time(1)))
 		self.run()
 
 	def events(self):
-		print("Running EVENTS")
+		print("[{}:{}] Running EVENTS".format(self.get_current_time(0), self.get_current_time(1)))
 		for event in pgm.event.get():
 			if event.type == pgm.QUIT:
 				if self.playing:
@@ -78,76 +109,89 @@ class Game:
 				playing = False
 
 	def update(self):
-		print("Running UPDATE\n", self.player_1.rect, self.player_1.vel)
+		def last_side_error_seeker():
+			if self.player0.last_side == 1 or -1:
+				pass
+			else:
+				return "Error, last side is :  {}".format(self.player0.last_side)
+		print("Running UPDATE\n", self.player0.rect, self.player0.vel, last_side_error_seeker())
 
-		self.all_sprites.update()
-		self.projectiles.update()
+		#updating sprites
+		self.player_group.update()
+		self.projectile_group.update()
+
 
 		for self.projectile in projectiles_list:
-			self.projectiles.add(self.projectile)
+			self.projectile_group.add(self.projectile)
+			print("Projectile Group: " ,self.projectile_group)
+			print("Damageable Group: ", self.damageable_group)
 		projectiles_list.clear()
 
-		self.player_collisions = pgm.sprite.spritecollide(self.player_1, self.non_crossable, False)
+		self.player_collisions = pgm.sprite.spritecollide(self.player0, self.non_crossable_group, False)
 		#migth need to change that code to groupcollide() to handle all the players
-		self.item_collide = pgm.sprite.groupcollide(self.players, self.weapons, False, False)
-		self.damageable_collisions = pgm.sprite.groupcollide(self.damageables, self.projectiles, False, False)
+		self.item_collide = pgm.sprite.groupcollide(self.player_group, self.weapon_group, False, False)
+		self.damageable_collisions = pgm.sprite.groupcollide(self.damageable_group, self.projectile_group, False, False)
 
 		if self.player_collisions:
-			#print("self.player_1 has collided with", self.player_collisions[0], self.player_1.rect, self.player_1.vel)
+			#print("self.player0 has collided with", self.player_collisions[0], self.player0.rect, self.player0.vel)
 			for self.collision in self.player_collisions:
 				#Handling of the down collision
-				if self.player_1.rect.y + self.player_1.rect.height >= self.collision.rect.y and self.player_1.rect.y + self.player_1.rect.height < self.collision.rect.y + (self.collision.rect.height / 2):
-					self.player_1.vel.y = 0
-					self.player_1.pos.y = self.collision.rect.top - (self.player_1.rect.height/2)
+				if self.player0.rect.y + self.player0.rect.height >= self.collision.rect.y and self.player0.rect.y + self.player0.rect.height < self.collision.rect.y + (self.collision.rect.height / 2):
+					self.player0.vel.y = 0
+					self.player0.pos.y = self.collision.rect.top - (self.player0.rect.height/2)
 					print("Down collision")
 
 				#Handling of the up collision
-				if (self.player_1.rect.y <= self.collision.rect.y + self.collision.rect.height and self.player_1.rect.y >= (self.collision.rect.y + self.collision.rect.height - 5)) and (self.player_1.rect.x + self.player_1.rect.width >= self.collision.rect.x and self.player_1.rect.x <= self.collision.rect.x + self.collision.rect.width):
-					self.player_1.vel.y = 0.5
-					self.player_1.pos.y = self.collision.rect.bottom + (self.player_1.rect.height /2) + 1
+				if (self.player0.rect.y <= self.collision.rect.y + self.collision.rect.height and self.player0.rect.y >= (self.collision.rect.y + self.collision.rect.height - 5)) and (self.player0.rect.x + self.player0.rect.width >= self.collision.rect.x and self.player0.rect.x <= self.collision.rect.x + self.collision.rect.width):
+					self.player0.vel.y = 0.5
+					self.player0.pos.y = self.collision.rect.bottom + (self.player0.rect.height /2) + 1
 					print("Up collision")
 
 				#Handling of the left collision
-				if (self.player_1.rect.x <= self.collision.rect.x + self.collision.rect.width and self.player_1.rect.x > self.collision.rect.x + (self.collision.rect.width -4.17)):
-					self.player_1.vel.x = 0
+				if (self.player0.rect.x <= self.collision.rect.x + self.collision.rect.width and self.player0.rect.x > self.collision.rect.x + (self.collision.rect.width -4.17)):
+					self.player0.vel.x = 0
 
-					#self.player_1.vel.x = self.player_1.vel.x * -0.3
-					self.player_1.pos.x = self.collision.rect.right + (self.player_1.rect.width /2)
+					#self.player0.vel.x = self.player0.vel.x * -0.3
+					self.player0.pos.x = self.collision.rect.right + (self.player0.rect.width /2)
 					print("Left collision")
-
+   
 				#Handling of the right collision
-				if (self.player_1.rect.x + self.player_1.rect.width >= self.collision.rect.x and self.player_1.rect.x + self.player_1.rect.width < self.collision.rect.x + 4.17) and (self.player_1.rect.y <= self.collision.rect.y + self.collision.rect.height and self.player_1.rect.y + self.player_1.rect.height >= self.collision.rect.y):
-					self.player_1.vel.x = 0
-					self.player_1.pos.x = self.collision.rect.left - (self.player_1.rect.width / 2)
+				if (self.player0.rect.x + self.player0.rect.width >= self.collision.rect.x and self.player0.rect.x + self.player0.rect.width < self.collision.rect.x + 4.17) and (self.player0.rect.y <= self.collision.rect.y + self.collision.rect.height and self.player0.rect.y + self.player0.rect.height >= self.collision.rect.y):
+					self.player0.vel.x = 0
+					self.player0.pos.x = self.collision.rect.left - (self.player0.rect.width / 2)
 					print("Right collision")
 
-
+		#item pickup
 		if self.item_collide:
 			print("\nItem collide: " ,self.item_collide)
 			for self.player_on_item in self.item_collide.keys():
 				self.player_on_item.pickup(self.item_collide)
 
+		#damage handler
 		if self.damageable_collisions:
 			print("Bullet collissions", self.damageable_collisions)
 			for self.dmg_collision in self.damageable_collisions.keys():
 				self.dmg_to_deal = 0
 				print("DMG", self.dmg_collision)
 				for self.hitting_projectile in self.damageable_collisions[self.dmg_collision]:
+					print("The projectile {} hit {} at a speed of {}".format(self.hitting_projectile,self.dmg_collision ,self.hitting_projectile.speed))
 					self.dmg_to_deal += self.hitting_projectile.damage
 					self.hitting_projectile.kill()
 
-				print("Sprite will be dealt {} damage points".format(self.dmg_to_deal))
+				print("Sprite will be dealt {} damage points".format(self.dmg_collision,self.dmg_to_deal))
 				self.dmg_collision.damage(self.dmg_to_deal)
 
 
 
 	def run(self):
+		print("Game took {} seconds to load".format(time.time() - started_loading_time))
 		print("Game is RUNNING")
 		frame_count = 0
 		self.playing = True
+		self.show_start_screen()
 		while self.playing:
 			frame_count += 1
-			print("\nFrame", frame_count)
+			print("\n\nFRAME", frame_count, "\n")
 			self.clock.tick(FPS)
 			self.events()
 			self.update()
@@ -157,16 +201,17 @@ class Game:
 	def render(self):
 		print("Running RENDER")
 		self.main_window.fill(BLACK)
-		self.projectiles.draw(self.main_window)
-		self.all_sprites.draw(self.main_window)
+		self.projectile_group.draw(self.main_window)
+		self.all_sprites_group.draw(self.main_window)
 		pgm.display.flip()
 
 	def show_start_screen(self):
 		pass
 	def show_gameover_screen(self):
 		pass
-	def load_map(self):
-		pass
+
+started_loading_time = time.time()
+print("LOADING...")
 
 g = Game()
 g.start()
@@ -181,4 +226,12 @@ it's > to the x velocity of players, making the player unable to get
 into the sprite too much.
 Same thing for the up collision but with a different value because of 
 the jump speed being much higher.
+
+The Player Sprite section of the maps now directly contains the key
+bindings instead of the PLAYER_PROFILE_n string.
+
+Resolve bug where weapons are drawn before player sprite
+
+Change Surface definitions which are given as args to automatic resolution
+through sprite image dimensions
 '''

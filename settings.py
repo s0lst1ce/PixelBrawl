@@ -6,7 +6,7 @@ import os
 WIDTH = 854
 HEIGHT = 480
 FPS = 60
-TITLE = "Pixel Brawl"
+TITLE = "Pixel Brawl - v0.2-a2"
 
 #Color definition
 RED = (255, 0, 0)
