@@ -9,5 +9,6 @@ weapons_firearms = {
 
 weapons_melee = {
 	"Name of the weapon": ["width -> int", "height -> int", "numbers of wields per second -> float", "damage to deal -> float", ["sprite1", "spriten"]],
-	"Axe": [10, 20, 3, 20, []]
+	"axe": [20, 30, 3, 20, []],
+	"katana": [10, 30, 10, 5, []]
 }

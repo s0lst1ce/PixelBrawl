@@ -2,9 +2,11 @@
 
 import pygame as pgm
 import random
+import math
 from settings import *
 from sprites import *
 from dev_map_1 import world as world
+
 
 class Game:
 
@@ -18,9 +20,23 @@ class Game:
 		pgm.display.set_caption(TITLE)
 		#Clock
 		self.clock = pgm.time.Clock()
+		self.FIRST_TIME = pgm.time.get_ticks()
 		#Sprite group
 		self.running = True
-		print("Game has been initalised")
+		print("[{}:{}]: Game has been initalised".format(0,0))
+
+	def get_current_time(self, sec_or_min):
+		now_time = (pgm.time.get_ticks() - self.FIRST_TIME) /1000
+		print(now_time)
+		now_time_min = math.floor(now_time / 60) 
+		now_time_sec = math.floor(now_time % 60)
+		#now_time_hr = floor(now_time_min/60)
+		if sec_or_min == 0:
+			return now_time_min
+		else:
+			return now_time_sec
+		
+
 
 	def start(self):
 		''' Starts a bew game by creating all Pygame Sprites and Sprites
@@ -81,11 +97,11 @@ class Game:
 		self.damageable_group.add(self.player_group)
 		self.damageable_group.add(self.explosive_group)
 
-		print("Game has been STARTED")
+		print("[{}:{}] Game has been STARTED".format(self.get_current_time(0), self.get_current_time(1)))
 		self.run()
 
 	def events(self):
-		print("Running EVENTS")
+		print("[{}:{}] Running EVENTS".format(self.get_current_time(0), self.get_current_time(1)))
 		for event in pgm.event.get():
 			if event.type == pgm.QUIT:
 				if self.playing:
@@ -93,7 +109,12 @@ class Game:
 				playing = False
 
 	def update(self):
-		print("Running UPDATE\n", self.player0.rect, self.player0.vel)
+		def last_side_error_seeker():
+			if self.player0.last_side == 1 or -1:
+				pass
+			else:
+				return "Error, last side is :  {}".format(self.player0.last_side)
+		print("Running UPDATE\n", self.player0.rect, self.player0.vel, last_side_error_seeker())
 
 		#updating sprites
 		self.player_group.update()
@@ -153,22 +174,24 @@ class Game:
 				self.dmg_to_deal = 0
 				print("DMG", self.dmg_collision)
 				for self.hitting_projectile in self.damageable_collisions[self.dmg_collision]:
+					print("The projectile {} hit {} at a speed of {}".format(self.hitting_projectile,self.dmg_collision ,self.hitting_projectile.speed))
 					self.dmg_to_deal += self.hitting_projectile.damage
 					self.hitting_projectile.kill()
 
-				print("Sprite will be dealt {} damage points".format(self.dmg_to_deal))
+				print("Sprite will be dealt {} damage points".format(self.dmg_collision,self.dmg_to_deal))
 				self.dmg_collision.damage(self.dmg_to_deal)
 
 
 
 	def run(self):
+		print("Game took {} seconds to load".format(time.time() - started_loading_time))
 		print("Game is RUNNING")
 		frame_count = 0
 		self.playing = True
 		self.show_start_screen()
 		while self.playing:
 			frame_count += 1
-			print("\nFrame", frame_count)
+			print("\n\nFRAME", frame_count, "\n")
 			self.clock.tick(FPS)
 			self.events()
 			self.update()
@@ -187,6 +210,9 @@ class Game:
 	def show_gameover_screen(self):
 		pass
 
+started_loading_time = time.time()
+print("LOADING...")
+
 g = Game()
 g.start()
 
@@ -203,4 +229,9 @@ the jump speed being much higher.
 
 The Player Sprite section of the maps now directly contains the key
 bindings instead of the PLAYER_PROFILE_n string.
+
+Resolve bug where weapons are drawn before player sprite
+
+Change Surface definitions which are given as args to automatic resolution
+through sprite image dimensions
 '''

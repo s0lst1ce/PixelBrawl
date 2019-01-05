@@ -7,7 +7,7 @@
 - [x] Handle damage
 - [x] Add a handler for different types of weapons/items 
 - [x] Create a consistent firearms definition
-- [ ] Add melee weapons
+- [x] Add handler to load map data from different files
 - [x] Add different types of projectiles & re-write Projectile sprite class
 
 ### v0.3-a3:
@@ -18,7 +18,8 @@
   - [ ] Improve weapons handler & re-write
   - [ ] Improve Groups handler 
 - [x] Create a consistent map definition format & filetype
-- [ ] Add handler to load map data from different files
+- [ ] Add melee weapons
+
 
 ### v0.4-a4:
 
@@ -45,9 +46,16 @@
 
 
 ### v0.7-b1:
+
 - [ ] Replace Pygame rectangles by drawn sprites
  - [ ] Add animations
 - [ ] Add sound
 
 ### v0.8-b2:
+
 - [ ] Create Map Editor
+
+### v0.9-b3:
+
+- [ ] Add Errors handler
+  - [ ] Add debug log

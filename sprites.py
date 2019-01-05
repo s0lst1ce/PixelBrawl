@@ -37,6 +37,7 @@ class Player(pgm.sprite.Sprite):
 
 
 	def update(self):
+		print("Player Sprite is updating last side is {}".format(self.last_side))
 		self.acc = vec(0, 0.5)
 		#self.vel = vec(0,0)
 
@@ -81,7 +82,6 @@ class Player(pgm.sprite.Sprite):
 
 
 			if pressed_keys[eval("pgm."+self.profile[5])]:
-				print("Player is shooting")
 				self.shoot()
 
 		#pickup item -> find a way to use the groups in the sprites section
@@ -107,23 +107,25 @@ class Player(pgm.sprite.Sprite):
 				self.weapon.rect.y = self.rect.y + (self.rect.height/2)
 
 	def shoot(self):
-		print("Player is shooting")
+		print("Player is shooting & last side is {} and player is at ({};{})".format(self.last_side, self.rect.x, self.rect.y))
 		self.actual_time = pgm.time.get_ticks()
 		self.fire_interval = FPS / self.weapon.fire_rate
 		if self.weapon.magazine <= 0:
 			self.started_to_reload = pgm.time.get_ticks()
 			self.weapon.magazine = self.weapon.magazine_size
 		if (self.actual_time - self.last_time) % self.fire_interval == 0 and self.actual_time - self.started_to_reload >= self.weapon.reload_time:
-			print("Last side is {}".format(self.last_time))
-			self.bullet = Projectile(self.weapon.rect.x + self.weapon.rect.width, self.weapon.rect.y + (self.weapon.rect.height/2), self.weapon.projectile_type, self.last_side)
+			print("Last side is {}".format(self.last_side))
+			if self.last_side == 1:
+				self.bullet = Projectile(self.weapon.rect.x + self.weapon.rect.width, self.weapon.rect.y + (self.weapon.rect.height/2), self.weapon.projectile_type, self.last_side)
+			elif self.last_side == -1:
+				self.bullet = Projectile(self.weapon.rect.x, self.weapon.rect.y + (self.weapon.rect.height/2), self.weapon.projectile_type, self.last_side)
+			else:
+				print("ERROR -> last side is {}".format(self.last_side))
 			projectiles_list.append(self.bullet)
 			self.weapon.magazine -= 1
 			self.last_time = pgm.time.get_ticks()
 			print("Player has shot")
 	
-
-
-
 	def damage(self, dmg_dealt):
 		self.hp -= dmg_dealt
 		if self.hp <= 0:
@@ -175,9 +177,11 @@ class Projectile(pgm.sprite.Sprite):
 		self.image.fill(RED)
 		self.rect = self.image.get_rect()
 		self.speed = pjt[projectile_type][2] * last_side
+		print("Speed of the Projectile is of {} p/s".format(self.speed))
 		#placing the bullet on the beside the weapon
 		self.rect.x = x
 		self.rect.y = y
+		print("Bullet {} is at ({};{})".format(self, self.rect.x, self.rect.y))
 		#how much damage does the projectile deals
 		self.damage = pjt[projectile_type][3]
 
@@ -204,7 +208,8 @@ class Firearm(pgm.sprite.Sprite):
 
 class MeleeWeapon(pgm.sprite.Sprite):
 	"""Class for mellee weapons
-	not yet ready to use -> not implemented"""
+	not yet ready to use -> not implemented
+	also change the start() function to accept Sprite class with 2 caps"""
 	def __init__(self, x, y, wpn_name):
 		pgm.sprite.Sprite.__init__(self)
 		
@@ -213,6 +218,6 @@ class MeleeWeapon(pgm.sprite.Sprite):
 
 		self.image = pgm.Surface((wpn_mle[wpn_name][0], wpn_mle[wpn_name][1]))
 		self.image.fill(YELLOW)
-		self.rect -self.image.get_rect()
+		self.rect =self.image.get_rect()
 		self.rect.x = x
 		self.rect.y = y
