@@ -12,3 +12,9 @@ weapons_melee = {
 	"axe": [20, 30, 3, 20, []],
 	"katana": [10, 30, 10, 5, []]
 }
+
+explosives = {
+	"Name of the explosive": ["width -> int", "height -> int", "hp -> int", "numbers of shot projectiles -> int", "radius of explosion -> int", "ignite to explode time in seconds -> float"],
+	"barril": [30, 40, 50, 20, 104, 5]
+
+}

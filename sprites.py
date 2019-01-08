@@ -1,9 +1,11 @@
 #sprite classes of all the entities of Pixel Brawl
 
 import pygame as pgm
+import math
 from settings import *
 from weapons import weapons_firearms as wpn_frm
 from weapons import weapons_melee as wpn_mle
+from weapons import explosives as expv
 from projectiles import projectile_type as pjt
 from destructibles import destructibles_types as dstr
 import time as time
@@ -32,12 +34,13 @@ class Player(pgm.sprite.Sprite):
 		self.last_side = 1
 		self.last_time = 0
 		self.started_to_reload = 0
-		print("{} dict is ->".format(self) ,self.__dict__)
+		self.weapon = None
+		#print("{} dict is ->".format(self) ,self.__dict__)
 
 
 
 	def update(self):
-		print("Player Sprite is updating last side is {}".format(self.last_side))
+		#print("Player Sprite is updating last side is {}".format(self.last_side))
 		self.acc = vec(0, 0.5)
 		#self.vel = vec(0,0)
 
@@ -47,12 +50,12 @@ class Player(pgm.sprite.Sprite):
 		if pressed_keys[eval("pgm."+self.profile[0])]:
 			self.acc.x = - PLAYER_ACCELERATION
 			self.last_side = -1
-			print("Turning left -> Last side is {}".format(self.last_side))
+			#print("Turning left -> Last side is {}".format(self.last_side))
 		#accelerating right
 		if pressed_keys[eval("pgm."+self.profile[1])]:
 			self.acc.x = PLAYER_ACCELERATION
 			self.last_side = 1
-			print("Turning right -> Last side is {}".format(self.last_side))
+			#print("Turning right -> Last side is {}".format(self.last_side))
 		#jumping
 		if not pressed_keys[eval("pgm."+self.profile[2])]:
 			self.can_jump = False
@@ -98,9 +101,11 @@ class Player(pgm.sprite.Sprite):
 		self.coll_dict = coll_dict
 		pressed_keys = pgm.key.get_pressed()
 		if pressed_keys[eval("pgm."+self.profile[3])]:
+			if self.has_wpn:
+				self.weapon.rect.y = self.rect.y + self.rect.height - self.weapon.rect.height
 			self.has_wpn = True
 			print("Picking up:    ", self.coll_dict)
-			for self in self.coll_dict.keys():
+			for self in self.coll_dict.keys(): #is using "self" ok ?
 				print(self)
 				self.weapon = self.coll_dict[self][0]
 				self.weapon.rect.x = self.rect.x + (self.rect.width/2)
@@ -132,6 +137,8 @@ class Player(pgm.sprite.Sprite):
 			self.death_animation()
 
 	def death_animation(self):
+		if self.has_wpn:
+			self.weapon.rect.y = self.rect.y + self.rect.height - self.weapon.rect.height
 		self.kill()
 
 
@@ -170,18 +177,15 @@ class Projectile(pgm.sprite.Sprite):
 	right sign?"""
 	def __init__(self, x, y, projectile_type, last_side):
 		pgm.sprite.Sprite.__init__(self)
-		
-
-
 		self.image = pgm.Surface((pjt[projectile_type][0], pjt[projectile_type][1]))
 		self.image.fill(RED)
 		self.rect = self.image.get_rect()
 		self.speed = pjt[projectile_type][2] * last_side
-		print("Speed of the Projectile is of {} p/s".format(self.speed))
+		#print("Speed of the Projectile is of {} p/s".format(self.speed))
 		#placing the bullet on the beside the weapon
 		self.rect.x = x
 		self.rect.y = y
-		print("Bullet {} is at ({};{})".format(self, self.rect.x, self.rect.y))
+		#print("Bullet {} is at ({};{})".format(self, self.rect.x, self.rect.y))
 		#how much damage does the projectile deals
 		self.damage = pjt[projectile_type][3]
 
@@ -221,3 +225,97 @@ class MeleeWeapon(pgm.sprite.Sprite):
 		self.rect =self.image.get_rect()
 		self.rect.x = x
 		self.rect.y = y
+
+class Explosive(pgm.sprite.Sprite):
+	"""docstring for Explosive"""
+	def __init__(self, x, y, expv_name):
+		#initializing pgm Sprite		
+		pgm.sprite.Sprite.__init__(self)
+		self.image = pgm.Surface((expv[expv_name][0], expv[expv_name][1]))
+		self.image.fill(ORANGE)
+		self.rect = self.image.get_rect()
+		self.rect.x = x
+		self.rect.y = y
+		#deducing attributes from expv_name
+		self.hp_max = self.hp = expv[expv_name][2]
+		self.pjt_number = expv[expv_name][3]
+		self.expl_radius = expv[expv_name][4]
+		self.explode_countdown = expv[expv_name][5]
+		self.started_to_ignite = False
+
+		self.dmg_ignited_tick = (self.hp_max/4) / (self.explode_countdown * FPS)
+
+	def update(self):
+		if self.started_to_ignite:
+			self.damage(self.dmg_ignited_tick)
+
+
+	def damage(self, dmg_dealt):
+		self.hp -= dmg_dealt
+		''' add the change of displayed sprite depending on hp %'''
+		if self.hp <= self.hp_max / 4 and not self.started_to_ignite:
+			self.started_to_ignite = True
+			self.image.fill(RED)
+		if self.hp <= 0:
+			self.explode()
+
+	def middle_2_pts(self, pt1, pt2):
+		return ((pt2[0]-pt1[0])/2 ,(pt2[1]-pt1[1])/2)
+
+	def get_pjt_dir(self):
+		'''Make algorithm to equaliy place all projectile in an
+		expanding circle trajectory'''
+		#self.angle = self.pjt_number / 2* math.pi
+		#creating points
+		self.pt_0 = (self.rect.x, self.rect.y + self.expl_radius)
+		self.pt_1 = (self.rect.x + self.expl_radius, self.rect.y)
+		self.pt_2 = (self.rect.x, self.rect.y - self.expl_radius)
+		self.pt_3 = (self.rect.x - self.expl_radius, self.rect.y)
+
+		self.pts_list = []
+		self.pt_number = 0
+		for self.current_quadramt in range(3):
+			self.pjts_per_quadrant = math.floor(self.pjt_number / 4)
+			self.pre_last_pt_1 = self.pt_0
+			self.pre_last_pt_2 = self.pt_1
+			self.last_pt = self.middle_2_pts(self.pre_last_pt_1, self.pre_last_pt_2)
+			self.pts_list.append(self.last_pt)
+			for l in range(self.pjts_per_quadrant):
+				'''add some kind of powered for loop in roder to stay
+				in line with the ever augmenting number of new avalaible
+				points created'''
+				self.current_pt = self.middle_2_pts(self.pre_last_pt_1, self.last_pt)
+
+				self.pts_list.append()
+
+				
+
+
+
+	def explode(self):
+		print("{} is exploding".format(self))
+		'''should I first remove the explosive from all groups ?'''
+		for self.expv_pjt in range(self.pjt_number):
+			self.expv_pjt = ExplosiveProjectile(self.rect.x, self.rect.y, (self.get_pjt_dir()), self.expl_radius)
+
+class ExplosiveProjectile(pgm.sprite.Sprite):
+	"""docstring for ExplosiveProjectile"""
+	def __init__(self, x, y, speed, radius):
+		pgm.sprite.Sprite.__init__(self)
+		self.image = pgm.Surface((1, 1))
+		self.image.fill(MAGENTA)
+		self.rect = self.image.get_rect()
+		self.rect.x = self.orig_x = x
+		self.rect.y = self.orig_y = y
+		self.speed = speed
+		self.radius = radius
+
+	def update(self):
+		self.rect.x += self.speed[0]
+		self.rect.y += self.speed[1]
+		if self.distance_from_orig() >= self.radius:
+			print("The distance from O({};{}) and is N({};{}) is of {}".format(self.orig_x, self.orig_y, self.rect.x, self.rect.y, self.distance_from_orig()))
+			self.kill()
+
+	def distance_from_orig(self):
+		 return math.sqrt((self.orig_x - self.rect.x)^2 + (self.orig_y - self.rect_y)^2)

@@ -2,7 +2,7 @@
 
 *NB:* This roadmap is subject to change at any moment. If there's any feature you'd like me to add please post a comment before asking for a pull request for the roadmap.
 
-### v0.2-a2:
+### v0.2-a2 - RELEASED:
 
 - [x] Handle damage
 - [x] Add a handler for different types of weapons/items 
@@ -10,7 +10,7 @@
 - [x] Add handler to load map data from different files
 - [x] Add different types of projectiles & re-write Projectile sprite class
 
-### v0.3-a3:
+### v0.3-a3 - IN DEVELOPMENT:
 
 - [ ] Add explosives
 - [ ] Improve general code
@@ -18,13 +18,15 @@
   - [ ] Improve weapons handler & re-write
   - [ ] Improve Groups handler 
 - [x] Create a consistent map definition format & filetype
-- [ ] Add melee weapons
+- [ ] Add throwables
 
 
 ### v0.4-a4:
 
 - [ ] Add more types of projectiles such as explosive ones
+- [ ] Add melee weapons
 - [x] Add spawnpoints
+- [x] Add multiplayer support
 - [ ] Add perks
 
 ### v0.5-a5:
