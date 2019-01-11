@@ -1,5 +1,6 @@
 #Main file for the Pixel Brawl game
-
+import time
+started_loading_time = time.time()
 import pygame as pgm
 import random
 import math
@@ -75,9 +76,6 @@ class Game:
 					except ValueError as e:
 						print(e, " -> self.arg is a string")
 						self.current_sprite_str = str(self.current_sprite_str + str('''"{}"'''.format(self.arg)) + ",")
-					except TypeError as e:
-						print(e, "-> self.arg is a list")
-						self.current_sprite_str = str(self.current_sprite_str + str(self.arg)+ ",")
 
 				self.current_sprite_str_len = len(self.current_sprite_str)
 				self.current_sprite_str = self.current_sprite_str[:self.current_sprite_str_len-1]
@@ -198,7 +196,7 @@ class Game:
 			self.events()
 			self.update()
 			self.render()
-		self.show_gameover_screen()
+		self.show_score_screen()
 
 	def render(self):
 		print("Running RENDER")
@@ -212,10 +210,15 @@ class Game:
 
 	def show_start_screen(self):
 		pass
-	def show_gameover_screen(self):
+	def show_score_screen(self):
 		pass
 
-started_loading_time = time.time()
+	def show_loading_screen(self):
+		pass
+
+	def show_settings_screen(self):
+		pass
+
 print("LOADING...")
 
 g = Game()

@@ -20,7 +20,7 @@ class Player(pgm.sprite.Sprite):
 		self.image = pgm.Surface((PLAYER_WIDTH, PLAYER_HEIGHT))
 		self.image.fill(BLUE)
 		self.rect = self.image.get_rect()
-		self.profile = profile
+		self.profile = eval("PLAYER_PROFILE_{}".format(profile))
 		self.rect.center = (x, y)
 
 		#creating vectors
@@ -288,10 +288,6 @@ class Explosive(pgm.sprite.Sprite):
 
 				self.pts_list.append()
 
-				
-
-
-
 	def explode(self):
 		print("{} is exploding".format(self))
 		'''should I first remove the explosive from all groups ?'''
@@ -319,3 +315,54 @@ class ExplosiveProjectile(pgm.sprite.Sprite):
 
 	def distance_from_orig(self):
 		 return math.sqrt((self.orig_x - self.rect.x)^2 + (self.orig_y - self.rect_y)^2)
+
+class Throwables(pgm.sprite.Sprite):
+	"""docstring for Throwables Sprite class"""
+	def __init__(self, x, y, thrb_name):
+		pgm.sprite.Sprite.__init__(self)
+		self.image = pgm.Surface((thrb))
+
+		self.x = x
+		self.y = y
+		self.thrb_name = thrb_name
+		
+class TextSurface(pgm.sprite.Sprite):
+			"""docstring for Text"""
+			def __init__(self, x, y, w, h, text ,bg_color=WHITE, fg_color=BLACK):
+				pgm.sprite.Sprite.__init__(self)
+				self.x = x
+				self.y = y
+				self.w = w
+				self.h = h
+				self.text = text
+				self.bg_color = bg_color
+				self.fg_color = fg_color
+
+class TextButton(TextSurface):
+	"""docstring for Button"""
+	def __init__(self, x, y, w, h, text, bg_color=WHITE, fg_color=BLACK, action=None):
+				self.x = x
+				self.y = y
+				self.w = w
+				self.h = h
+				self.text = text
+				self.bg_color = bg_color
+				self.fg_color = fg_color
+
+	def update(self):
+		pass
+
+	def on_hover(self):
+		pass
+
+	def on_click(self):
+		pass
+
+
+class ImageButton(pgm.sprite.Sprite):
+			"""docstring for ImageButton"""
+			def __init__(self, x, y, image, action=None):
+				pgm.sprite.Sprite.__init__(self)
+				self.x = x
+				self.y = y
+				self.image = image
