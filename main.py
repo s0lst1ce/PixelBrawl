@@ -2,12 +2,12 @@
 import time
 started_loading_time = time.time()
 import pygame as pgm
+import pygame.freetype as pgm_frtp
 import random
 import math
 from settings import *
 from sprites import *
 from dev_map_1 import world as world
-
 
 class Game:
 
@@ -57,6 +57,9 @@ class Game:
 		self.gravityboud_group = pgm.sprite.Group()
 		self.throwable_group = pgm.sprite.Group()
 		self.item_group = pgm.sprite.Group()
+		self.gui_group = pgm.sprite.Group()
+		self.textsurface_group = pgm.sprite.Group()
+		self.textbutton_group = pgm.sprite.Group()
 
 		#creating sprites
 		for self.sprite_type in world.keys():
@@ -64,7 +67,7 @@ class Game:
 			for self.sprite in world[self.sprite_type]:
 				self.sprite_generic_name = self.sprite_type.lower()
 
-				self.sprite_args = world[self.sprite_generic_name.title()][self.sprite_number]
+				self.sprite_args = world[self.sprite_type][self.sprite_number]
 				self.current_sprite_full_name = str(self.sprite_generic_name+str(self.sprite_number))
 				self.current_sprite_str = ""
 				print(self.current_sprite_full_name, self.sprite)
@@ -79,10 +82,11 @@ class Game:
 
 				self.current_sprite_str_len = len(self.current_sprite_str)
 				self.current_sprite_str = self.current_sprite_str[:self.current_sprite_str_len-1]
-				self.current_sprite = eval(self.sprite_type+"({})".format(self.current_sprite_str))
+				self.current_sprite = eval(self.sprite_type+"""({})""".format(self.current_sprite_str))
 				self.__dict__[self.current_sprite_full_name] = self.current_sprite
 
 				#adding sprite to groups
+				print(self.current_sprite)
 				self.all_sprites_group.add(self.current_sprite)
 				self.sprite_generic_name_group = str(self.sprite_generic_name)
 				eval("self."+self.sprite_generic_name_group+"_group"+".add(self.current_sprite)")
@@ -95,6 +99,7 @@ class Game:
 		self.non_crossable_group.add(self.destructible_group, self.platform_group, self.explosive_group)
 		self.damageable_group.add(self.destructible_group, self.explosive_group, self.player_group)
 		self.gravityboud_group.add(self.player_group, self.item_group)
+		self.gui_group.add(self.textsurface_group, self.textbutton_group)
 
 		print("[{}:{}] Game has been STARTED".format(self.get_current_time(0), self.get_current_time(1)))
 		self.run()
@@ -118,6 +123,7 @@ class Game:
 		#updating sprites
 		self.player_group.update()
 		self.projectile_group.update()
+		self.gui_group.update()
 
 		for self.projectile in projectiles_list:
 			self.projectile_group.add(self.projectile)
@@ -206,6 +212,7 @@ class Game:
 		self.player_group.draw(self.main_window)
 		self.weapon_group.draw(self.main_window)
 		self.projectile_group.draw(self.main_window)
+		self.gui_group.draw(self.main_window)
 		pgm.display.flip()
 
 	def show_start_screen(self):

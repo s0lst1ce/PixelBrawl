@@ -1,10 +1,10 @@
-'''Generic script to compile a .py file using cx_Freeze'''
+import cx_Freeze
 
-from cx_Freeze import setup, Executable
+executables = [cx_Freeze.Executable("main.py")]
 
-setup(
-    name = "PixelBrawl",
-    version = "v0.1-a1",
-    description = "Small and simple yet (hopefully ! ) fun game.",
-    executables = [Executable("main.py")],
-)
+cx_Freeze.setup(
+	name="Pixel Brawl v0.2-a2",
+	options={"build": {"packages":["pygame"]}},
+	executables = executables
+
+	)

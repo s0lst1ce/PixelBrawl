@@ -1,6 +1,7 @@
 #sprite classes of all the entities of Pixel Brawl
 
 import pygame as pgm
+import pygame.freetype as pgm_frtp
 import math
 from settings import *
 from weapons import weapons_firearms as wpn_frm
@@ -105,7 +106,7 @@ class Player(pgm.sprite.Sprite):
 				self.weapon.rect.y = self.rect.y + self.rect.height - self.weapon.rect.height
 			self.has_wpn = True
 			print("Picking up:    ", self.coll_dict)
-			for self in self.coll_dict.keys(): #is using "self" ok ?
+			for self in self.coll_dict.keys(): #is using "self" ok for a loop ?
 				print(self)
 				self.weapon = self.coll_dict[self][0]
 				self.weapon.rect.x = self.rect.x + (self.rect.width/2)
@@ -327,36 +328,90 @@ class Throwables(pgm.sprite.Sprite):
 		self.thrb_name = thrb_name
 		
 class TextSurface(pgm.sprite.Sprite):
-			"""docstring for Text"""
-			def __init__(self, x, y, w, h, text ,bg_color=WHITE, fg_color=BLACK):
-				pgm.sprite.Sprite.__init__(self)
-				self.x = x
-				self.y = y
-				self.w = w
-				self.h = h
-				self.text = text
-				self.bg_color = bg_color
-				self.fg_color = fg_color
+	"""docstring for Text, is there a way to delete a surface or remove
+	a subsurface for a parent surface ?"""
+	def __init__(self, x, y, text, fg_color=RED, bg_color=None):
+		pgm.sprite.Sprite.__init__(self)
+		self.text = text
+		self.bg_color = bg_color
+		self.fg_color = fg_color
+		self.txt_font = pgm_frtp.Font(None, 20)
+		self.txt_rect = self.txt_font.get_rect(self.text)
+		self.image = pgm.Surface((self.txt_rect.w, self.txt_rect.h))
+		self.image.fill(ALPHA)
+		self.rect = self.image.get_rect()
+		self.rect.x = x
+		self.rect.y = y
+		self.txt_font.render_to(self.image, (0, 0), self.text, fgcolor=self.fg_color, bgcolor=None)
 
-class TextButton(TextSurface):
-	"""docstring for Button"""
-	def __init__(self, x, y, w, h, text, bg_color=WHITE, fg_color=BLACK, action=None):
-				self.x = x
-				self.y = y
-				self.w = w
-				self.h = h
-				self.text = text
-				self.bg_color = bg_color
-				self.fg_color = fg_color
+	def chg_pos(self, new_pos=(0,0)):
+		self.rect.x = new_pos[0]
+		self.rect.y = new_pos[1]
+
+	def destroy(self):
+		self.kill()
+
+	def chg_color(self, new_fg_color, new_bg_color):
+		self.txt_font.render_to(self.image, (0, 0), self.text, fgcolor=new_fg_color, bgcolor=new_bg_color)
+
+	def chg_txt(self, new_txt):
+		'''Improve the code in order to rebuild the image surface to fit the
+		whole new text perfectly'''
+		self.image.fill(ALPHA)
+		self.txt_rect = self.txt_font.get_rect(new_txt)
+		self.rect.w = self.txt_rect.w
+		self.txt_font.render_to(self.image, (0, 0), new_txt, fgcolor=self.fg_color, bgcolor=None)
 
 	def update(self):
-		pass
+		if pgm.time.get_ticks() >= 300:
+			self.chg_color(BLUE, WHITE)
+			self.chg_txt("Goodbye World!")
+
+
+class TextButton(pgm.sprite.Sprite):
+	"""docstring for Button how could I make it inherit from TextSurface ?"""
+	def __init__(self, x, y, w, h, text, action=None, bg_color=WHITE, fg_color=GREEN,):
+		pgm.sprite.Sprite.__init__(self)
+		self.text = text
+		self.action = action
+		self.bg_color = bg_color
+		self.fg_color = fg_color
+		print(self.bg_color)
+		self.on_hover_bg_color = (self.bg_color[0]-50, self.bg_color[1]-50, self.bg_color[2]-50)
+		self.txt_font = pgm_frtp.Font(None, 20)
+		self.txt_rect  = self.txt_font.get_rect(self.text)
+		self.image = pgm.Surface((w, h))
+		self.image = self.image.convert_alpha()
+		self.rect = self.image.get_rect()
+		self.rect.x = x
+		self.rect.y = y
+		self.txt_font.render_to(self.image, (0, 0), self.text, fgcolor=self.fg_color, bgcolor=self.bg_color)
+		self.was_hovered = False
+
+	def destroy(self):
+		self.kill()
+
+	def chg_color(self, new_fg_color, new_bg_color):
+		self.txt_font.render_to(self.image, (0, 0), self.text, fgcolor=new_fg_color, bgcolor=new_bg_color)
+
+	def update(self):
+		self.events = pgm.event.get()
+		self.mouse_pos = pgm.mouse.get_pos()
+		if (self.mouse_pos[0]>= self.rect.x and self.mouse_pos[0]<= self.rect.x + self.rect.w) and (self.mouse_pos[1]>= self.rect.y and self.mouse_pos[1] <=self.rect.y + self.rect.h) :
+			self.on_hover()
+			self.mouse_clicks = pgm.mouse.get_pressed()
+			if self.mouse_clicks[0]:
+				self.on_click()
+		elif self.was_hovered:
+			self.was_hovered = False
+			self.chg_color(self.fg_color, self.bg_color)
 
 	def on_hover(self):
-		pass
+		self.chg_color(self.fg_color, self.on_hover_bg_color)
+		self.was_hovered = True
 
 	def on_click(self):
-		pass
+		eval(self.action)
 
 
 class ImageButton(pgm.sprite.Sprite):
