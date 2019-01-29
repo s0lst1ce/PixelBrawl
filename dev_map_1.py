@@ -6,5 +6,5 @@ world = {
 	"MeleeWeapon": [[WIDTH/2, HEIGHT -20, "axe"]],
 	"Destructible": [[40, 0, 10 , HEIGHT, "wood"]],
 	"Explosive": [[WIDTH-60, HEIGHT-50, "barril"]],
-	"Player": [[WIDTH/2, HEIGHT/2, 1]],
+	"Player": [[WIDTH/2, HEIGHT/2, 1], [WIDTH/2+30, HEIGHT/2, 2]],
 }

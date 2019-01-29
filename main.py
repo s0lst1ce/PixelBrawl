@@ -2,6 +2,25 @@
 #Available under the GPL3 LISCENCE
 #See https://www.github.com/NotaSmartDev/PixelBrawl/ for more information
 #Art is from both Kenney (https://www.kenney.com) and myself :)
+'''NOTE:
+the left and right collision checkers aren't perfect.
+They are set to detect a collision even if you're 4.17 pixels inside a
+platform (= on a platform). The number was set to 4.17 pixels because
+it's > to the maximum x velocity of players, making the player unable to get
+into the sprite too much.
+Now the same thing is true for the up collision but with a different value because of 
+the jump speed being much higher.
+
+Fix bug where you can stick the player head to a roof
+
+Change Surface definitions which are given as args to automatic resolution
+through sprite image dimensions -> work in progress
+
+merge the start and show_start_screen loading methods
+
+delete about 90% of the "self" which are utterly useless and degrading performance while adding complexity
+'''
+
 import time
 started_loading_time = time.time()
 import pygame as pgm
@@ -13,8 +32,9 @@ from settings import *
 from sprites import *
 from dev_map_1 import world as world
 from menus import start as startmenu
+from menus import score as scoremenu
 
-	
+
 class Game:
 
 	def __init__(self):
@@ -84,7 +104,7 @@ class Game:
 				self.sprite_generic_name_group = str(self.sprite_generic_name)
 				eval("self."+self.sprite_generic_name_group+"_group"+".add(self.current_sprite)")
 				self.sprite_number +=1
-				print("{} dict is ->".format(self) ,self.__dict__)
+				#print("{} dict is ->".format(self) ,self.__dict__)
 		#adding subgroups to main groups
 		self.refresh_groups()
 		   
@@ -107,6 +127,7 @@ class Game:
 		self.textsurface_group = pgm.sprite.Group()
 		self.textbutton_group = pgm.sprite.Group()
 		self.imagebutton_group = pgm.sprite.Group()
+		self.button_group = pgm.sprite.Group()
 
 	def refresh_groups(self):
 		print("REFRESHING GROUPS")
@@ -116,7 +137,9 @@ class Game:
 		self.non_crossable_group.add(self.destructible_group, self.platform_group, self.explosive_group)
 		self.damageable_group.add(self.destructible_group, self.explosive_group, self.player_group)
 		self.gravityboud_group.add(self.player_group, self.item_group)
-		self.gui_group.add(self.textbutton_group, self.textsurface_group, self.imagebutton_group)
+		self.button_group.add(self.textbutton_group, self.imagebutton_group)
+		self.gui_group.add(self.textsurface_group, self.button_group)
+		self.all_sprites_group.add(self.item_group, self.non_crossable_group, self.damageable_group, self.gravityboud_group, self.gui_group, self.projectile_group)
 		print(self.gui_group)
 
 
@@ -139,10 +162,20 @@ class Game:
 					self.playing = False
 				playing = False
 
+		if len(self.player_group) == 1: #what if both player die at the same time ?
+			self.show_score_screen()
+
 	def update(self):
-		self.gui_group.update()
+		self.gui_update()
 		if self.game_started:
 			self.game_update()
+
+	def gui_update(self):
+		self.gui_group.update()
+		for self.crt_button in iter(self.button_group):
+			if self.crt_button.acting:
+				print("Executing {} from {} button".format(self.crt_button.action, self.crt_button))
+				self.button_runner(self.crt_button.action)
 
 	def game_update(self):
 		print("Running UPDATE\n")
@@ -233,6 +266,7 @@ class Game:
 
 	def render(self):
 		print("Running RENDER")
+		self.main_window.fill(BACKGROUND)
 		self.projectile_group.draw(self.main_window)
 		self.non_crossable_group.draw(self.main_window)
 		self.player_group.draw(self.main_window)
@@ -249,13 +283,34 @@ class Game:
 
 	def show_start_screen(self):
 		print("\n\n--DISPLAYING START MENU--\n\n")
-		self.main_window.fill(WHITE)
+		global BACKGROUND
+		if self.all_sprites_group:
+			for sprite in iter(self.all_sprites_group): sprite.kill()
+		BACKGROUND = WHITE
 		self.screen_loader(startmenu)
 		self.render()
 
+	def button_runner(self, action=None):
+		if action==None:
+			return None
+		eval("self."+action+"()")
+
+	def stop_game(self):
+		self.playing = False
+	def start_game(self):
+		global BACKGROUND
+		self.game_started = True
+		for gui_element in iter(self.gui_group): gui_element.kill()
+		BACKGROUND = BLACK
+		self.screen_loader(world)
+
 
 	def show_score_screen(self):
-		pass
+		global BACKGROUND
+		self.game_started = False
+		for sprite in iter(self.all_sprites_group): sprite.kill()
+		BACKGROUND = WHITE
+		self.screen_loader(scoremenu)
 
 	def show_loading_screen(self):
 		pass
@@ -274,21 +329,3 @@ def passing(command):
 
 if __name__ == '__main__':
 	g.run()
-
-
-
-
-'''NOTE:
-the left and right collision checkers aren't perfect.
-They are set to detect a collision even if you're 4.17 pixels inside a
-platform (= on a platform). The number was set to 4.17 pixels because
-it's > to the maximum x velocity of players, making the player unable to get
-into the sprite too much.
-Same thing for the up collision but with a different value because of 
-the jump speed being much higher.
-
-Change Surface definitions which are given as args to automatic resolution
-through sprite image dimensions -> work in progress
-
-merge the start and show_start_screen loading methods
-'''

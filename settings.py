@@ -40,5 +40,7 @@ PLAYER_PROFILE_3 = None
 #projectiles properties
 PROJECTILE_SPEED = 10 #this must always be < PLAYER_WIDTH
 
+BACKGROUND = BLACK
+
 #paths
 #img = os.path("curdir")

@@ -413,6 +413,7 @@ class TextButton(pgm.sprite.Sprite):
 		self.rect.y = y
 		self.txt_font.render_to(self.image, (0, 0), self.text, fgcolor=self.fg_color, bgcolor=self.bg_color)
 		self.was_hovered = False
+		self.acting = False
 
 	def destroy(self):
 		self.kill()
@@ -427,7 +428,7 @@ class TextButton(pgm.sprite.Sprite):
 			self.on_hover()
 			self.mouse_clicks = pgm.mouse.get_pressed()
 			if self.mouse_clicks[0]:
-				self.on_click()
+				self.acting = True
 		elif self.was_hovered:
 			self.was_hovered = False
 			self.chg_color(self.fg_color, self.bg_color)
@@ -435,10 +436,6 @@ class TextButton(pgm.sprite.Sprite):
 	def on_hover(self):
 		self.chg_color(self.fg_color, self.on_hover_bg_color)
 		self.was_hovered = True
-
-	def on_click(self):
-		print("Doing {}".format(self.action))
-		main.passing(self.action)
 
 
 class ImageButton(pgm.sprite.Sprite):
@@ -451,6 +448,8 @@ class ImageButton(pgm.sprite.Sprite):
 				self.rect = self.image.get_rect()
 				self.rect.x = x - (self.rect.w/2)
 				self.rect.y = y - (self.rect.h/2)
+				self.action = action
+				self.acting = False
 
 class Ladder(pgm.sprite.Sprite):
 	"""docstring for Ladder"""
