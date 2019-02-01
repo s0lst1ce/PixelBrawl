@@ -18,14 +18,14 @@
  - [x] Add Buttons
  - [ ] Add Typping entry
 
-### v0.4-a4:
+### v0.4-b1:
 
 - [ ] Fix transparency
 - [ ] Replace Pygame rectangles by drawn sprites
  - [ ] Add animations
 - [ ] Add sound
 
-### v0.5-a5:
+### v0.5-b2:
 
 - [ ] Add more types of projectiles such as explosive ones
 - [ ] Add melee weapons
@@ -33,7 +33,7 @@
 - [x] Add full shared screen multiplayer support
 - [ ] Add perks
 
-### v0.6-a6:
+### v0.6-b3:
 
 - [ ] Add explosives
 - [ ] Improve general code
@@ -44,7 +44,7 @@
 - [ ] Add throwables
 
 
-### v0.7-b1:
+### v1.0:
 
 - [ ] Fix various bugs
  - [ ] Reload issues
@@ -53,11 +53,6 @@
  - [ ] Improve collision checks
  - [ ] Lots of small bugfixes
 
-### v0.8-b2:
+### v1.1:
 
 - [ ] Create Map Editor
-
-### v0.9-b3:
-
-- [ ] Add Errors handler
-  - [ ] Add debug log
