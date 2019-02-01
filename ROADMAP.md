@@ -15,42 +15,43 @@
 - [ ] Add GUI
  - [ ] Add Menus
  - [x] Add Text
- - [ ] Add Buttons
+ - [x] Add Buttons
+ - [ ] Add Typping entry
 
 ### v0.4-a4:
+
+- [ ] Fix transparency
+- [ ] Replace Pygame rectangles by drawn sprites
+ - [ ] Add animations
+- [ ] Add sound
+
+### v0.5-a5:
 
 - [ ] Add more types of projectiles such as explosive ones
 - [ ] Add melee weapons
 - [x] Add spawnpoints
-- [x] Add multiplayer support
+- [x] Add full shared screen multiplayer support
 - [ ] Add perks
 
-### v0.5-a5:
+### v0.6-a6:
 
 - [ ] Add explosives
-  - [ ] Write dispersion algorithm
 - [ ] Improve general code
   - [x] Re-write the `start()` function with loops to handle different maps
   - [ ] Improve weapons handler & re-write
-  - [ ] Improve Groups handler 
+  - [x] Improve Groups handler 
 - [x] Create a consistent map definition format & filetype
 - [ ] Add throwables
 
-### v0.6-a6:
+
+### v0.7-b1:
 
 - [ ] Fix various bugs
  - [ ] Reload issues
  - [ ] Bullets which can pass through `non-crossable`
  - [ ] Players who can jump through `non-crossable` if they're too close
+ - [ ] Improve collision checks
  - [ ] Lots of small bugfixes
-- [ ] Re-write collision block of the `update()` function to suit multiple players
-
-
-### v0.7-b1:
-
-- [ ] Replace Pygame rectangles by drawn sprites
- - [ ] Add animations
-- [ ] Add sound
 
 ### v0.8-b2:
 

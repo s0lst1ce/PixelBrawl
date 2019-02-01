@@ -19,6 +19,14 @@ YELLOW = (255, 255, 0)
 CYAN = (0, 255, 255)
 MAGENTA = (255, 0, 255)
 ORANGE = (255, 165, 0)
+LIGHT_GREY = (178, 178, 178)
+DARK_GREY = (78, 78, 78)
+
+#Game settings
+BACKGROUND = BLACK
+PAUSE_KEY = "p"
+TEXT_CORR_W = 20
+TEXT_CORR_H = 50
 
 #Player physics properties definition
 PLAYER_ACCELERATION = 0.5
