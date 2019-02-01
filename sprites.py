@@ -359,12 +359,15 @@ class TextSurface(pgm.sprite.Sprite):
 	"""docstring for Text, is there a way to delete a surface or remove
 	a subsurface for a parent surface ?
 	fix the false alpha background -> due to colorkey ?
+	also add an offset for the size of the text box to make it more readable
 	"""
 	def __init__(self, x, y, text, fg_color=RED, bg_color=None):
 		pgm.sprite.Sprite.__init__(self)
 		self.text = text
 		self.bg_color = bg_color
 		self.fg_color = fg_color
+		if bg_color!=None: self.on_hover_bg_color = (self.bg_color[0]-math.floor(0.3*self.bg_color[0]), self.bg_color[1]-math.floor(0.3*self.bg_color[1]), self.bg_color[2]-math.floor(0.3*self.bg_color[2]))
+		else: self.on_hover_bg_color = bg_color
 		self.txt_font = pgm_frtp.Font(None, 20)
 		self.txt_rect = self.txt_font.get_rect(self.text)
 		self.image = pgm.Surface((self.txt_rect.w, self.txt_rect.h))
@@ -372,17 +375,19 @@ class TextSurface(pgm.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.x = x - (self.txt_rect.w /2)
 		self.rect.y = y
-		self.txt_font.render_to(self.image, (0, 0), self.text, fgcolor=self.fg_color, bgcolor=None)
+		self.txt_font.render_to(self.image, (0,0), self.text, fgcolor=self.fg_color, bgcolor=None)
 
 	def chg_pos(self, new_pos=(0,0)):
 		self.rect.x = new_pos[0]
 		self.rect.y = new_pos[1]
 
-	def destroy(self):
-		self.kill()
-
-	def chg_color(self, new_fg_color, new_bg_color):
-		self.txt_font.render_to(self.image, (0, 0), self.text, fgcolor=new_fg_color, bgcolor=new_bg_color)
+	def chg_color(self, state=0):
+		'''state is 0 if the bgcolor is normal and 1 if highlighted'''
+		if state==1:
+			self.new_bg_color = self.on_hover_bg_color
+		else:
+			self.new_bg_color = self.bg_color
+		self.txt_font.render_to(self.image, (0,0), self.text, fgcolor=self.fg_color, bgcolor=self.new_bg_color)
 
 	def chg_txt(self, new_txt):
 		'''Improve the code in order to rebuild the image surface to fit the
@@ -391,8 +396,7 @@ class TextSurface(pgm.sprite.Sprite):
 		self.image.fill(ALPHA)
 		self.txt_rect = self.txt_font.get_rect(new_txt)
 		self.rect.w = self.txt_rect.w
-		self.txt_font.render_to(self.image, (0, 0), new_txt, fgcolor=self.fg_color, bgcolor=None)
-
+		self.txt_font.render_to(self.image, (0,0), new_txt, fgcolor=self.fg_color, bgcolor=None)
 
 class TextButton(pgm.sprite.Sprite):
 	"""docstring for Button how could I make it inherit from TextSurface ?"""
@@ -415,9 +419,6 @@ class TextButton(pgm.sprite.Sprite):
 		self.was_hovered = False
 		self.acting = False
 
-	def destroy(self):
-		self.kill()
-
 	def chg_color(self, new_fg_color, new_bg_color):
 		self.txt_font.render_to(self.image, (0, 0), self.text, fgcolor=new_fg_color, bgcolor=new_bg_color)
 
@@ -439,17 +440,93 @@ class TextButton(pgm.sprite.Sprite):
 
 
 class ImageButton(pgm.sprite.Sprite):
-			"""docstring for ImageButton"""
-			def __init__(self, x, y, image, action=None):
-				pgm.sprite.Sprite.__init__(self)
-				self.x = x
-				self.y = y
-				self.image = pgm.image.load(str("./"+image)).convert()
-				self.rect = self.image.get_rect()
-				self.rect.x = x - (self.rect.w/2)
-				self.rect.y = y - (self.rect.h/2)
-				self.action = action
-				self.acting = False
+	"""docstring for ImageButton"""
+	def __init__(self, x, y, image, action=None):
+		pgm.sprite.Sprite.__init__(self)
+		self.x = x
+		self.y = y
+		self.image = pgm.image.load(str("./"+image)).convert()
+		self.rect = self.image.get_rect()
+		self.rect.x = x - (self.rect.w/2)
+		self.rect.y = y - (self.rect.h/2)
+		self.action = action
+		self.acting = False
+
+	def chg_color(self, new_fg_color, new_bg_color):
+		self.txt_font.render_to(self.image, (0, 0), self.text, fgcolor=new_fg_color, bgcolor=new_bg_color)
+
+	def update(self):
+		self.events = pgm.event.get()
+		self.mouse_pos = pgm.mouse.get_pos()
+		if (self.mouse_pos[0]>= self.rect.x and self.mouse_pos[0]<= self.rect.x + self.rect.w) and (self.mouse_pos[1]>= self.rect.y and self.mouse_pos[1] <=self.rect.y + self.rect.h) :
+			self.on_hover()
+			self.mouse_clicks = pgm.mouse.get_pressed()
+			if self.mouse_clicks[0]:
+				self.acting = True
+		elif self.was_hovered:
+			self.was_hovered = False
+			self.chg_color(self.fg_color, self.bg_color)
+
+	def on_hover(self):
+		self.chg_color(self.fg_color, self.on_hover_bg_color)
+		self.was_hovered = True
+
+class InputField(pgm.sprite.Sprite):
+	"""docstring for InputField, heavily depends on TextSurface. Just a prototype, not very well written
+	add a background image to help the user determine the nature of the sprite and its rect
+	change colors to have a greyed out hint_text
+	add a limit to the TextSurface width"""
+	def __init__(self, x, y, hint_text, fg_color=BLUE, bg_color=None):
+		pgm.sprite.Sprite.__init__(self)
+		self.hint_text = self.crt_txt = hint_text
+		self.fg_color = fg_color
+		self.bg_color = bg_color
+		self.txt_displayer = TextSurface(x, y, self.hint_text, LIGHT_GREY, self.bg_color)
+		self.rect = self.txt_displayer.rect
+		self.image = self.txt_displayer.image
+		self.was_hovered = self.focused = False
+
+
+	def update(self):
+		self.events = pgm.event.get()
+		self.mouse_pos = pgm.mouse.get_pos()
+		if (self.mouse_pos[0]>= self.rect.x and self.mouse_pos[0]<= self.rect.x + self.rect.w) and (self.mouse_pos[1]>= self.rect.y and self.mouse_pos[1] <=self.rect.y + self.rect.h) :
+			self.was_hovered = True #replaces the on_hover function along with the next line
+			self.txt_displayer.chg_color(state=1)
+			self.mouse_clicks = pgm.mouse.get_pressed()
+			if self.mouse_clicks[0]:
+				self.focused = True
+		elif self.was_hovered:
+			self.was_hovered = False
+			self.txt_displayer.chg_color()
+
+		if self.focused:
+			self.text_to_append = ""
+			print("KEYDOWN dict:\t{}".format(pgm.event.KEYDOWN.key))
+			for key in pgm.KEYDOWN:
+				print("Currently pressing {}".format(key))
+				if key == "pgm.K_BACKSPACE":
+					if len(self.text_to_append) == 0:
+						self.new_text = self.crt_txt[:-1]
+						print("\nOld text was {} new text is {}".format(self.crt_txt, self.new_txt))
+					else:
+						print("\nOld text was {} new text is {}".format(self.text_to_append, self.text_to_append[:-1]))
+						self.text_to_append = self.text_to_append[:-1]
+
+				else:
+					self.text_to_append.join(key)
+			self.new_txt.join(self.text_to_append)
+			print("\nOld text was {} new TextSurface will be {}".format(self.crt_txt, self.new_txt))
+			self.update_text(self.new_txt)
+
+	def update_text(new_txt):
+		self.txt_displayer.kill()
+		self.txt_displayer = TextSurface(self.rect.x, self.rect.y, new_txt, self.fg_color, self.bg_color)
+
+
+
+
+
 
 class Ladder(pgm.sprite.Sprite):
 	"""docstring for Ladder"""

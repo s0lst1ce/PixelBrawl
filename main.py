@@ -19,6 +19,8 @@ through sprite image dimensions -> work in progress
 merge the start and show_start_screen loading methods
 
 delete about 90% of the "self" which are utterly useless and degrading performance while adding complexity
+
+rethink game_paused var, really useful ?
 '''
 
 import time
@@ -33,6 +35,8 @@ from sprites import *
 from dev_map_1 import world as world
 from menus import start as startmenu
 from menus import score as scoremenu
+from menus import pause as pausemenu
+from menus import loading as loadingmenu
 
 
 class Game:
@@ -51,6 +55,7 @@ class Game:
 		#Sprite group
 		self.running = True
 		self.game_started = False
+		self.game_paused = False
 		print("[{}:{}]: Game has been initalised".format(0,0))
 		self.make_groups()
 
@@ -128,6 +133,7 @@ class Game:
 		self.textbutton_group = pgm.sprite.Group()
 		self.imagebutton_group = pgm.sprite.Group()
 		self.button_group = pgm.sprite.Group()
+		self.inputfield_group = pgm.sprite.Group()
 
 	def refresh_groups(self):
 		print("REFRESHING GROUPS")
@@ -138,7 +144,7 @@ class Game:
 		self.damageable_group.add(self.destructible_group, self.explosive_group, self.player_group)
 		self.gravityboud_group.add(self.player_group, self.item_group)
 		self.button_group.add(self.textbutton_group, self.imagebutton_group)
-		self.gui_group.add(self.textsurface_group, self.button_group)
+		self.gui_group.add(self.textsurface_group, self.button_group, self.inputfield_group)
 		self.all_sprites_group.add(self.item_group, self.non_crossable_group, self.damageable_group, self.gravityboud_group, self.gui_group, self.projectile_group)
 		print(self.gui_group)
 
@@ -161,13 +167,19 @@ class Game:
 				if self.playing:
 					self.playing = False
 				playing = False
+			pressed_keys = pgm.key.get_pressed()
+			if (pressed_keys[eval("pgm.K_ESCAPE")] or pressed_keys[eval("pgm.K_{}".format(PAUSE_KEY))]) and self.game_started:
+				if self.game_paused: self.resume_game()
+				else: self.show_pause_screen()
+
+
 
 		if len(self.player_group) == 1: #what if both player die at the same time ?
 			self.show_score_screen()
 
 	def update(self):
 		self.gui_update()
-		if self.game_started:
+		if self.game_started and not self.game_paused:
 			self.game_update()
 
 	def gui_update(self):
@@ -267,11 +279,12 @@ class Game:
 	def render(self):
 		print("Running RENDER")
 		self.main_window.fill(BACKGROUND)
-		self.projectile_group.draw(self.main_window)
-		self.non_crossable_group.draw(self.main_window)
-		self.player_group.draw(self.main_window)
-		self.weapon_group.draw(self.main_window)
-		self.projectile_group.draw(self.main_window)
+		if not self.game_paused:
+			self.projectile_group.draw(self.main_window)
+			self.non_crossable_group.draw(self.main_window)
+			self.player_group.draw(self.main_window)
+			self.weapon_group.draw(self.main_window)
+			self.projectile_group.draw(self.main_window)
 		self.gui_group.draw(self.main_window)
 		#self.gui_group.draw(self.main_window)
 		pgm.display.flip()
@@ -313,10 +326,26 @@ class Game:
 		self.screen_loader(scoremenu)
 
 	def show_loading_screen(self):
-		pass
+		'''a screen which, I hope will never be needed for this game.
+		Still I've laways wished to make up my own loading screen ^^'''
+		global BACKGROUND
+		BACKGROUND = BLACK
+		self.show_loading_screen(loadingmenu)
 
 	def show_settings_screen(self):
 		pass
+	def show_pause_screen(self):
+		global BACKGROUND
+		self.game_paused = True
+		BACKGROUND = WHITE
+		self.screen_loader(pausemenu)
+
+	def resume_game(self):
+		'''meant to make the game sprites drawn and updated again.'''
+		global BACKGROUND
+		BACKGROUND = BLACK
+		for gui_element in iter(self.gui_group): gui_element.kill()
+		self.game_paused = False
 
 
 print("LOADING...")

@@ -20,6 +20,7 @@
 
 ### v0.4-a4:
 
+- [ ] Fix transparency
 - [ ] Replace Pygame rectangles by drawn sprites
  - [ ] Add animations
 - [ ] Add sound
