@@ -47,7 +47,7 @@ class Player(pgm.sprite.Sprite):
 		self.sprt_list = []
 		self.current_sprite_int = 0
 		for self.sprt_file in os.listdir(self.path):
-			self.sprt_list.append(pgm.image.load(str(self.path +self.sprt_file)).convert())
+			self.sprt_list.append(pgm.image.load(str(self.path +self.sprt_file)).convert_alpha())
 		self.len_sprt = len(self.sprt_list)
 
 	def update(self):
@@ -110,6 +110,7 @@ class Player(pgm.sprite.Sprite):
 		self.animate()
 
 	def animate(self):
+		'''work in progress'''
 		self.current_time = pgm.time.get_ticks()
 		print(self.current_time - self.last_anim_time)
 		if self.current_sprite_int >= self.len_sprt:
@@ -125,7 +126,7 @@ class Player(pgm.sprite.Sprite):
 	def pickup(self, coll_dict):
 		self.coll_dict = coll_dict
 		pressed_keys = pgm.key.get_pressed()
-		if pressed_keys[eval("pgm."+self.profile[3])]:
+		if pressed_keys[eval("pgm."+self.profile[4])]:
 			if self.has_wpn:
 				self.weapon.rect.y = self.rect.y + self.rect.height - self.weapon.rect.height
 			self.has_wpn = True
@@ -174,7 +175,6 @@ class Platform(pgm.sprite.Sprite):
 		self.image = pgm.Surface((w, h))
 		self.image.fill(GREEN)
 		self.rect = self.image.get_rect()
-		#placing the platform
 		self.rect.x = x
 		self.rect.y = y
 
@@ -274,6 +274,7 @@ class Explosive(pgm.sprite.Sprite):
 
 	def update(self):
 		if self.started_to_ignite:
+			print("{} started to ignite -> dealing {} damage. Current hp is of {}".format(self, self.dmg_ignited_tick, self.hp))
 			self.damage(self.dmg_ignited_tick)
 
 
@@ -292,58 +293,69 @@ class Explosive(pgm.sprite.Sprite):
 	def get_pjt_dir(self):
 		'''Make algorithm to equaliy place all projectile in an
 		expanding circle trajectory
+		see https://forums.futura-sciences.com/mathematiques-superieur/376022-coordonnes-dun-point-de-triangle-isocele.html
+		& https://www.maths-forum.com/superieur/trouver-les-coordonnees-point-dans-triangle-isocele-t77086.html
+		explains the formula that should be used
 		'''
-		#self.angle = self.pjt_number / 2* math.pi
-		#creating points
-		self.pt_0 = (self.rect.x, self.rect.y + self.expl_radius)
-		self.pt_1 = (self.rect.x + self.expl_radius, self.rect.y)
-		self.pt_2 = (self.rect.x, self.rect.y - self.expl_radius)
-		self.pt_3 = (self.rect.x - self.expl_radius, self.rect.y)
+		#creating required data
+		o_coo = (self.rect.centerx, self.rect.centery)
+		a_coo = (o_coo[0],o_coo[0]+self.expl_radius)
+		angle = crt_angle = (math.pi/2)/self.pjt_number
+		pts_list = []
+		pjts_dirs = []
 
-		self.pts_list = []
-		self.pt_number = 0
-		for self.current_quadramt in range(3):
-			self.pjts_per_quadrant = math.floor(self.pjt_number / 4)
-			self.pre_last_pt_1 = self.pt_0
-			self.pre_last_pt_2 = self.pt_1
-			self.last_pt = self.middle_2_pts(self.pre_last_pt_1, self.pre_last_pt_2)
-			self.pts_list.append(self.last_pt)
-			for l in range(self.pjts_per_quadrant):
-				'''add some kind of powered for loop in roder to stay
-				in line with the ever augmenting number of new avalaible
-				points created
-				'''
-				self.current_pt = self.middle_2_pts(self.pre_last_pt_1, self.last_pt)
+		#making coords
+		for crt_pt in range(self.pjt_number):
+			x_coo = o_coo[0] + (a_coo[0]-o_coo[0])*math.cos(crt_angle) - (a_coo[1]-o_coo[1])*math.sin(crt_angle)
+			y_coo = o_coo[1] + (a_coo[1]-o_coo[1])*math.cos(crt_angle) + (a_coo[0]-o_coo[0])*math.sin(crt_angle)
+			pts_list.append((x_coo, y_coo))
+			crt_angle += angle
 
-				self.pts_list.append()
+		for crt_pt in pts_list:
+			#reducing the speed to a maximum of 1 by axis; adapt this value
+			reduced_pt_div = max(crt_pt)
+			crt_dir = (math.ceil(crt_pt[0]/reduced_pt_div), math.ceil(crt_pt[1]/reduced_pt_div))
+			pjts_dirs.append(crt_dir)
+		print("\nDirections for the projectiles will be \n{}".format(pjts_dirs))
+		return pjts_dirs
+
+
+
 
 	def explode(self):
 		print("{} is exploding".format(self))
 		'''should I first remove the explosive from all groups ?'''
-		for self.expv_pjt in range(self.pjt_number):
-			self.expv_pjt = ExplosiveProjectile(self.rect.x, self.rect.y, (self.get_pjt_dir()), self.expl_radius)
+		#self.pjt_list = []
+		self.pjts_dirs = self.get_pjt_dir()
+		for pt_coo in self.pjts_dirs:
+			self.crt_pjt = ExplosiveProjectile(self.rect.centerx, self.rect.centery, pt_coo, self.expl_radius, "normal_bullet")
+			projectiles_list.append(self.crt_pjt)
+		self.kill()
 
 class ExplosiveProjectile(pgm.sprite.Sprite):
 	"""docstring for ExplosiveProjectile"""
-	def __init__(self, x, y, speed, radius):
+	def __init__(self, x, y, speed, radius, pjt_name):
 		pgm.sprite.Sprite.__init__(self)
 		self.image = pgm.Surface((1, 1))
-		self.image.fill(MAGENTA)
+		self.image.fill(RED)
 		self.rect = self.image.get_rect()
 		self.rect.x = self.orig_x = x
 		self.rect.y = self.orig_y = y
 		self.speed = speed
 		self.radius = radius
+		self.damage = pjt[pjt_name][3]
+		print("Creating {} at N({};{})".format(self, self.rect.x, self.rect.y))
 
 	def update(self):
 		self.rect.x += self.speed[0]
 		self.rect.y += self.speed[1]
 		if self.distance_from_orig() >= self.radius:
-			print("The distance from O({};{}) and is N({};{}) is of {}".format(self.orig_x, self.orig_y, self.rect.x, self.rect.y, self.distance_from_orig()))
+			print("The distance from O({};{}) and N({};{}) is of {} which is greater than {} :\t killing bullet".format(self.orig_x, self.orig_y, self.rect.x, self.rect.y, self.distance_from_orig(), self.radius))
 			self.kill()
 
 	def distance_from_orig(self):
-		 return math.sqrt((self.orig_x - self.rect.x)^2 + (self.orig_y - self.rect_y)^2)
+		#print("Will square {}".format(((self.orig_x - self.rect.x)^2) + ((self.orig_y - self.rect.y)^2)))
+		return math.sqrt((self.orig_x - self.rect.x)**2 + (self.orig_y - self.rect.y)**2)
 
 class Throwables(pgm.sprite.Sprite):
 	"""docstring for Throwables Sprite class"""
@@ -445,7 +457,7 @@ class ImageButton(pgm.sprite.Sprite):
 		pgm.sprite.Sprite.__init__(self)
 		self.x = x
 		self.y = y
-		self.image = pgm.image.load(str("./"+image)).convert()
+		self.image = pgm.image.load(str("./"+image)).convert_alpha()
 		self.rect = self.image.get_rect()
 		self.rect.x = x - (self.rect.w/2)
 		self.rect.y = y - (self.rect.h/2)
@@ -487,9 +499,9 @@ class InputField(pgm.sprite.Sprite):
 		self.was_hovered = self.focused = False
 
 
-	def update(self):
-		self.events = pgm.event.get()
+	def update(self, key=None):
 		self.mouse_pos = pgm.mouse.get_pos()
+		self.key = key
 		if (self.mouse_pos[0]>= self.rect.x and self.mouse_pos[0]<= self.rect.x + self.rect.w) and (self.mouse_pos[1]>= self.rect.y and self.mouse_pos[1] <=self.rect.y + self.rect.h) :
 			self.was_hovered = True #replaces the on_hover function along with the next line
 			self.txt_displayer.chg_color(state=1)
@@ -500,31 +512,38 @@ class InputField(pgm.sprite.Sprite):
 			self.was_hovered = False
 			self.txt_displayer.chg_color()
 
-		if self.focused:
-			self.text_to_append = ""
-			print("KEYDOWN dict:\t{}".format(pgm.event.KEYDOWN.key))
-			for key in pgm.KEYDOWN:
-				print("Currently pressing {}".format(key))
-				if key == "pgm.K_BACKSPACE":
-					if len(self.text_to_append) == 0:
-						self.new_text = self.crt_txt[:-1]
-						print("\nOld text was {} new text is {}".format(self.crt_txt, self.new_txt))
-					else:
-						print("\nOld text was {} new text is {}".format(self.text_to_append, self.text_to_append[:-1]))
-						self.text_to_append = self.text_to_append[:-1]
+		if self.focused and self.key!=None:
+			if self.crt_txt == "": self.crt_txt = self.hint_text
+			else: self.crt_txt = ""
 
+
+			'''new_txt is the text that will replace the currently drawn one. crt text is the text currenrtly being
+			drawn. str_to_append is the string which will be joined to new_txt
+			simplify the number of variables'''
+			self.new_txt = self.crt_txt
+			self.str_to_append = ""
+			#print("KEYDOWN dict:\t{}".format(pgm.event.))
+			print("Currently pressing {}".format(self.key))
+			if self.key == "pgm.K_BACKSPACE":
+				if len(self.str_to_append) == 0:
+					self.new_text = self.crt_txt[:-1]
+					print("\nOld text was {} new text is {}".format(self.crt_txt, self.new_txt))
 				else:
-					self.text_to_append.join(key)
-			self.new_txt.join(self.text_to_append)
-			print("\nOld text was {} new TextSurface will be {}".format(self.crt_txt, self.new_txt))
-			self.update_text(self.new_txt)
+					print("\nOld text was {} new text is {}".format(self.str_to_append, self.str_to_append[:-1]))
+					self.str_to_append = self.str_to_append[:-1]
 
-	def update_text(new_txt):
+			else:
+				self.str_to_append.join(self.key)
+				print("Joining {} to {}".format(self.key, self.str_to_append))
+			self.new_txt.join(self.str_to_append)
+			print("After joining {}, new_txt is:\t{}".format(self.str_to_append, self.new_txt))
+			self.crt_txt = self.new_txt
+			print("\nOld text was {} new TextSurface will be {}".format(self.crt_txt, self.crt_txt))
+			self.update_text(self.crt_txt)
+
+	def update_text(self, new_txt):
 		self.txt_displayer.kill()
 		self.txt_displayer = TextSurface(self.rect.x, self.rect.y, new_txt, self.fg_color, self.bg_color)
-
-
-
 
 
 

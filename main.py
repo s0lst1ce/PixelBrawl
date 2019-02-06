@@ -16,8 +16,6 @@ Fix bug where you can stick the player head to a roof
 Change Surface definitions which are given as args to automatic resolution
 through sprite image dimensions -> work in progress
 
-merge the start and show_start_screen loading methods
-
 delete about 90% of the "self" which are utterly useless and degrading performance while adding complexity
 
 rethink game_paused var, really useful ?
@@ -64,7 +62,6 @@ class Game:
 		print(now_time)
 		now_time_min = math.floor(now_time / 60) 
 		now_time_sec = math.floor(now_time % 60)
-		#now_time_hr = floor(now_time_min/60)
 		if sec_or_min == 0:
 			return now_time_min
 		else:
@@ -80,7 +77,7 @@ class Game:
 				self.sprite_args = data_dict[self.sprite_type][self.sprite_number]
 				self.current_sprite_full_name = str(self.sprite_generic_name+str(self.sprite_number))
 				self.current_sprite_str = ""
-				print(self.current_sprite_full_name, self.sprite)
+				#print(self.current_sprite_full_name, self.sprite)
 				for self.arg in self.sprite_args:
 					try:
 						self.arg = math.floor(int(self.arg))
@@ -88,23 +85,23 @@ class Game:
 
 					except ValueError as e:
 						if self.arg[0] == "#":
-							print("{} -> self.arg is a Keyword argument".format(e))
+							#print("{} -> self.arg is a Keyword argument".format(e))
 							self.current_sprite_str = str(self.current_sprite_str + str("{},".format(self.arg.replace("#", ""))))
-							print(self.current_sprite_str)
+							#print(self.current_sprite_str)
 						else:
-							print(e, " -> self.arg is a String")
+							#print(e, " -> self.arg is a String")
 							self.current_sprite_str = str(self.current_sprite_str + str('''"{}"'''.format(self.arg)) + ",")
 							self.current_sprite_str.replace("#", "")
-							print(self.current_sprite_str)
+							#print(self.current_sprite_str)
 
 				self.current_sprite_str_len = len(self.current_sprite_str)
 				self.current_sprite_str = self.current_sprite_str[:self.current_sprite_str_len-1]
-				print("Current sprite string is {}".format(self.current_sprite_str))
+				#print("Current sprite string is {}".format(self.current_sprite_str))
 				self.current_sprite = eval(self.sprite_type+"""({})""".format(self.current_sprite_str))
 				self.__dict__[self.current_sprite_full_name] = self.current_sprite
 
 				#adding sprite to groups
-				print(self.current_sprite)
+				#print(self.current_sprite)
 				self.all_sprites_group.add(self.current_sprite)
 				self.sprite_generic_name_group = str(self.sprite_generic_name)
 				eval("self."+self.sprite_generic_name_group+"_group"+".add(self.current_sprite)")
@@ -114,26 +111,26 @@ class Game:
 		self.refresh_groups()
 		   
 	def make_groups(self):
-		self.all_sprites_group = pgm.sprite.Group()
-		self.platform_group = pgm.sprite.Group()
-		self.projectile_group = pgm.sprite.Group()
-		self.explosive_group = pgm.sprite.Group()
-		self.weapon_group = pgm.sprite.Group()
-		self.firearm_group = pgm.sprite.Group()
-		self.meleeweapon_group = pgm.sprite.Group()
-		self.player_group = pgm.sprite.Group()
-		self.destructible_group = pgm.sprite.Group()
-		self.non_crossable_group = pgm.sprite.Group()
-		self.damageable_group = pgm.sprite.Group()
-		self.gravityboud_group = pgm.sprite.Group()
-		self.throwable_group = pgm.sprite.Group()
-		self.item_group = pgm.sprite.Group()
-		self.gui_group = pgm.sprite.Group()
-		self.textsurface_group = pgm.sprite.Group()
-		self.textbutton_group = pgm.sprite.Group()
-		self.imagebutton_group = pgm.sprite.Group()
-		self.button_group = pgm.sprite.Group()
-		self.inputfield_group = pgm.sprite.Group()
+		self.all_sprites_group		= pgm.sprite.Group()
+		self.platform_group 		= pgm.sprite.Group()
+		self.projectile_group 		= pgm.sprite.Group()
+		self.explosive_group 		= pgm.sprite.Group()
+		self.weapon_group 			= pgm.sprite.Group()
+		self.firearm_group 			= pgm.sprite.Group()
+		self.meleeweapon_group 		= pgm.sprite.Group()
+		self.player_group 			= pgm.sprite.Group()
+		self.destructible_group 	= pgm.sprite.Group()
+		self.non_crossable_group 	= pgm.sprite.Group()
+		self.damageable_group 		= pgm.sprite.Group()
+		self.gravityboud_group 		= pgm.sprite.Group()
+		self.throwable_group 		= pgm.sprite.Group()
+		self.item_group 			= pgm.sprite.Group()
+		self.gui_group 				= pgm.sprite.Group()
+		self.textsurface_group 		= pgm.sprite.Group()
+		self.textbutton_group 		= pgm.sprite.Group()
+		self.imagebutton_group 		= pgm.sprite.Group()
+		self.button_group 			= pgm.sprite.Group()
+		self.inputfield_group 		= pgm.sprite.Group()
 
 	def refresh_groups(self):
 		print("REFRESHING GROUPS")
@@ -148,7 +145,6 @@ class Game:
 		self.all_sprites_group.add(self.item_group, self.non_crossable_group, self.damageable_group, self.gravityboud_group, self.gui_group, self.projectile_group)
 		print(self.gui_group)
 
-
 	def start(self):
 		''' Starts a bew game by creating all Pygame Sprites and Sprites
 		Groups
@@ -161,12 +157,17 @@ class Game:
 		self.run()
 
 	def events(self):
-		print("[{}:{}] Running EVENTS".format(self.get_current_time(0), self.get_current_time(1)))
+		print("[{}:{}] Running EVENTS\n".format(self.get_current_time(0), self.get_current_time(1)))
 		for event in pgm.event.get():
+			#print("Processing {} event of {} type".format(event, event.type))
 			if event.type == pgm.QUIT:
 				if self.playing:
 					self.playing = False
 				playing = False
+
+			if event.type == pgm.KEYDOWN:
+				for inputfield in self.inputfield_group: inputfield.update(key=event.unicode) #maybe add focused here ?
+
 			pressed_keys = pgm.key.get_pressed()
 			if (pressed_keys[eval("pgm.K_ESCAPE")] or pressed_keys[eval("pgm.K_{}".format(PAUSE_KEY))]) and self.game_started:
 				if self.game_paused: self.resume_game()
@@ -184,6 +185,7 @@ class Game:
 
 	def gui_update(self):
 		self.gui_group.update()
+		print("Text surfaces are {}".format(self.textsurface_group))
 		for self.crt_button in iter(self.button_group):
 			if self.crt_button.acting:
 				print("Executing {} from {} button".format(self.crt_button.action, self.crt_button))
@@ -194,6 +196,7 @@ class Game:
 
 		#updating sprites
 		self.player_group.update()
+		self.explosive_group.update()
 		self.projectile_group.update()
 		self.gui_group.update()
 
@@ -259,6 +262,9 @@ class Game:
 				print("Sprite will be dealt {} damage points".format(self.dmg_collision,self.dmg_to_deal))
 				self.dmg_collision.damage(self.dmg_to_deal)
 
+		#handling explosions
+		
+
 
 
 	def run(self):
@@ -323,6 +329,7 @@ class Game:
 		self.game_started = False
 		for sprite in iter(self.all_sprites_group): sprite.kill()
 		BACKGROUND = WHITE
+		self.main_window.fill(BACKGROUND)
 		self.screen_loader(scoremenu)
 
 	def show_loading_screen(self):

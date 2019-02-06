@@ -20,6 +20,7 @@
 
 ### v0.4-b1:
 
+- [ ] Make a cx_Freeze script to easilly distribute game
 - [ ] Fix transparency
 - [ ] Replace Pygame rectangles by drawn sprites
  - [ ] Add animations
@@ -47,8 +48,11 @@
 ### v1.0:
 
 - [ ] Fix various bugs
- - [ ] Reload issues
- - [ ] Bullets which can pass through `non-crossable`
+ - [ ] Fix sprite update order
+ - [ ] Shooting interval
+ - [x] GFX glitches with "ghost" bullets
+ - [ ] Reloading weapon issues
+ - [ ] Bullets which can pass through `non-crossable` if they're fast
  - [ ] Players who can jump through `non-crossable` if they're too close
  - [ ] Improve collision checks
  - [ ] Lots of small bugfixes

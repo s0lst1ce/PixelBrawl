@@ -6,7 +6,7 @@ import os
 WIDTH = 854
 HEIGHT = 480
 FPS = 60
-TITLE = "Pixel Brawl - v0.2-a2 DEV"
+TITLE = "Pixel Brawl - v0.3-a3 DEV"
 
 #Color definition
 ALPHA = (0,0,0,0)
@@ -41,8 +41,8 @@ PLAYER_HP = 100
 #players key profiles
 #PLAYER_PROFILE_N = ["left_key", "right_key", "up_key",
 #"down_key", "pickup_key", "shoot_key"]
-PLAYER_PROFILE_1 = ["K_LEFT", "K_RIGHT", "K_UP", "K_DOWN", "K_f", "K_SPACE"]
-PLAYER_PROFILE_2 = ["K_a", "K_d", "K_w", "K_s", "K_e", "K_c"]
+PLAYER_PROFILE_1 = ["K_LEFT", "K_RIGHT", "K_UP", "K_DOWN", "K_m", "K_n"]
+PLAYER_PROFILE_2 = ["K_a", "K_d", "K_w", "K_s", "K_e", "K_SPACE"]
 PLAYER_PROFILE_3 = None
 
 #projectiles properties
