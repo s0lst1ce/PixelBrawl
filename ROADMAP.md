@@ -13,17 +13,18 @@
 ### v0.3-a3 - IN DEVELOPMENT:
 
 - [ ] Add GUI
- - [ ] Add Menus
- - [x] Add Text
- - [x] Add Buttons
- - [ ] Add Typping entry
+  - [ ] Add Menus
+  - [x] Add Text
+  - [x] Add Buttons
+  - [ ] Add Typping entry
 
 ### v0.4-b1:
 
 - [ ] Make a cx_Freeze script to easilly distribute game
+- [ ] Add en error log to improve community feedback
 - [ ] Fix transparency
 - [ ] Replace Pygame rectangles by drawn sprites
- - [ ] Add animations
+  - [ ] Add animations
 - [ ] Add sound
 
 ### v0.5-b2:
@@ -48,14 +49,14 @@
 ### v1.0:
 
 - [ ] Fix various bugs
- - [ ] Fix sprite update order
- - [ ] Shooting interval
- - [x] GFX glitches with "ghost" bullets
- - [ ] Reloading weapon issues
- - [ ] Bullets which can pass through `non-crossable` if they're fast
- - [ ] Players who can jump through `non-crossable` if they're too close
- - [ ] Improve collision checks
- - [ ] Lots of small bugfixes
+  - [ ] Fix sprite update order
+  - [ ] Shooting interval
+  - [x] GFX glitches with "ghost" bullets
+  - [ ] Reloading weapon issues
+  - [ ] Bullets which can pass through `non-crossable` if they're fast
+  - [ ] Players who can jump through `non-crossable` if they're too close
+  - [ ] Improve collision checks
+  - [ ] Lots of small bugfixes
 
 ### v1.1:
 
