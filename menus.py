@@ -1,7 +1,10 @@
 from settings import *
-#this kind of loading method requires a to move a lot of data around, is it worth it ? Also causes issues and difficulties
-#concerning variable values, how ot improve it ?
-#also think to improve the loader to make settings independant or the map deisgner won't work correctly across multiple configs
+'''this kind of loading method requires a to move a lot of data around, is it worth it ? Also causes issues and difficulties
+concerning variable values, how ot improve it ?
+also think to improve the loader to make settings independant or the map deisgner won't work correctly across multiple configs
+also it's far from being pythonic
+
+NB: change the nested strings + "#" which is a flag for keyword argument (see main.py: screen_loader()) '''
 settings = {
 	"TextSurface": [],
 	"TextButton": [],
@@ -31,6 +34,6 @@ score = {
 loading = {
 	"TextSurface": [[WIDTH/2, HEIGHT/2, "LOADING...", "#fg_color=YELLOW"]],
 }
-'''find a way to improve the handler to be able to pass ratios adpated to text size
+'''find a way to improve the handler to be able to pass ratios adapted to text size
 improve handler to be able to choose the font
 '''

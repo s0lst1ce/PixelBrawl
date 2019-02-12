@@ -42,9 +42,10 @@ class Game:
 	def __init__(self):
 		#Inits pygame and the sound handler
 		pgm.init()   
-		pgm.mixer.init()
+		#pgm.mixer.init()
 		#Create window
-		self.main_window = pgm.display.set_mode((WIDTH, HEIGHT))
+		self.main_window = pgm.display.set_mode((WIDTH, HEIGHT)) #removed pgm.RESIZABLE due to issues in scaling, see events()
+		self.screen = pgm.Surface((WIDTH, HEIGHT))
 		#Setting the name of the window
 		pgm.display.set_caption(TITLE)
 		#Clock
@@ -57,7 +58,7 @@ class Game:
 		print("[{}:{}]: Game has been initalised".format(0,0))
 		self.make_groups()
 
-	def get_current_time(self, sec_or_min):
+	def get_elapsed_time(self, sec_or_min):
 		now_time = (pgm.time.get_ticks() - self.FIRST_TIME) /1000
 		print(now_time)
 		now_time_min = math.floor(now_time / 60) 
@@ -67,46 +68,33 @@ class Game:
 		else:
 			return now_time_sec
 
-	def screen_loader(self, data_dict):
+	def load_screen(self, data_dict):
 		print("\nLOADING SCREEN {}\n\n".format(data_dict))
-		for self.sprite_type in data_dict.keys():
-			self.sprite_number = 0
-			for self.sprite in data_dict[self.sprite_type]:
-				self.sprite_generic_name = self.sprite_type.lower()
+		for sprite_type in data_dict.keys():
+			sprite_number = 0
+			for sprite in data_dict[sprite_type]:
+				sprite_generic_name = sprite_type.lower()
 
-				self.sprite_args = data_dict[self.sprite_type][self.sprite_number]
-				self.current_sprite_full_name = str(self.sprite_generic_name+str(self.sprite_number))
-				self.current_sprite_str = ""
-				#print(self.current_sprite_full_name, self.sprite)
-				for self.arg in self.sprite_args:
+				current_sprite_str = ""
+				for arg in data_dict[sprite_type][sprite_number]:
 					try:
-						self.arg = math.floor(int(self.arg))
-						self.current_sprite_str = str(self.current_sprite_str + str(self.arg) + ",")
+						arg = math.floor(int(arg))
+						current_sprite_str = str(current_sprite_str + str(arg) + ",")
 
 					except ValueError as e:
-						if self.arg[0] == "#":
-							#print("{} -> self.arg is a Keyword argument".format(e))
-							self.current_sprite_str = str(self.current_sprite_str + str("{},".format(self.arg.replace("#", ""))))
-							#print(self.current_sprite_str)
+						if arg[0] == "#":
+							current_sprite_str = str(current_sprite_str + str("{},".format(arg.replace("#", ""))))
 						else:
-							#print(e, " -> self.arg is a String")
-							self.current_sprite_str = str(self.current_sprite_str + str('''"{}"'''.format(self.arg)) + ",")
-							self.current_sprite_str.replace("#", "")
-							#print(self.current_sprite_str)
+							current_sprite_str = str(current_sprite_str + str('''"{}"'''.format(arg)) + ",")
+							current_sprite_str.replace("#", "")
 
-				self.current_sprite_str_len = len(self.current_sprite_str)
-				self.current_sprite_str = self.current_sprite_str[:self.current_sprite_str_len-1]
-				#print("Current sprite string is {}".format(self.current_sprite_str))
-				self.current_sprite = eval(self.sprite_type+"""({})""".format(self.current_sprite_str))
-				self.__dict__[self.current_sprite_full_name] = self.current_sprite
+				current_sprite_str = current_sprite_str[:len(current_sprite_str)-1]
+				current_sprite = eval(sprite_type+"""({})""".format(current_sprite_str))
+				self.__dict__[str(sprite_generic_name+str(sprite_number))] = current_sprite
 
-				#adding sprite to groups
-				#print(self.current_sprite)
-				self.all_sprites_group.add(self.current_sprite)
-				self.sprite_generic_name_group = str(self.sprite_generic_name)
-				eval("self."+self.sprite_generic_name_group+"_group"+".add(self.current_sprite)")
-				self.sprite_number +=1
-				#print("{} dict is ->".format(self) ,self.__dict__)
+				self.all_sprites_group.add(current_sprite)
+				eval("self."+str(sprite_generic_name)+"_group"+".add(current_sprite)")
+				sprite_number +=1
 		#adding subgroups to main groups
 		self.refresh_groups()
 		   
@@ -151,13 +139,13 @@ class Game:
 		'''
 		global projectiles_list
 		#creating sprites
-		self.screen_loader(world)
+		self.load_screen(world)
 		#displaying new state
-		print("[{}:{}] Game has been STARTED".format(self.get_current_time(0), self.get_current_time(1)))
+		print("[{}:{}] Game has been STARTED".format(self.get_elapsed_time(0), self.get_elapsed_time(1)))
 		self.run()
 
 	def events(self):
-		print("[{}:{}] Running EVENTS\n".format(self.get_current_time(0), self.get_current_time(1)))
+		print("[{}:{}] Running EVENTS\n".format(self.get_elapsed_time(0), self.get_elapsed_time(1)))
 		for event in pgm.event.get():
 			#print("Processing {} event of {} type".format(event, event.type))
 			if event.type == pgm.QUIT:
@@ -166,12 +154,26 @@ class Game:
 				playing = False
 
 			if event.type == pgm.KEYDOWN:
-				for inputfield in self.inputfield_group: inputfield.update(key=event.unicode) #maybe add focused here ?
+				print("Currently displaying {} texts".format(self.textsurface_group))
+				for inputfield in self.inputfield_group: inputfield.update(key=event.unicode)
 
 			pressed_keys = pgm.key.get_pressed()
 			if (pressed_keys[eval("pgm.K_ESCAPE")] or pressed_keys[eval("pgm.K_{}".format(PAUSE_KEY))]) and self.game_started:
 				if self.game_paused: self.resume_game()
 				else: self.show_pause_screen()
+			if event.type == pgm.VIDEORESIZE:
+				'''resize screen
+				DEPRECATED -> only meant to stay here as an example but will never execute as pgm.RESIZABLE is set to False
+				in display creation'''
+				#getting the size of the current surface representing the display & overwritting settings.py config 
+				WIDTH, HEIGHT = event.w, event.h
+				print("Display info\t{}".format(pgm.display.Info()))
+				print(self.main_window)
+				#changing resolution of the screen surface
+				temp_game_surf = pgm.transform.scale(self.screen, (WIDTH, HEIGHT))
+				print(temp_game_surf)
+				self.screen = temp_game_surf
+				print("Screen {} should be {}x{}".format(self,screen, WIDTH, HEIGHT))
 
 
 
@@ -184,12 +186,17 @@ class Game:
 			self.game_update()
 
 	def gui_update(self):
+		global input_field_txt_list
+		for txt in input_field_txt_list:
+			self.textsurface_group.add(txt)
+		input_field_txt_list.clear()
+		self.refresh_groups()
 		self.gui_group.update()
 		print("Text surfaces are {}".format(self.textsurface_group))
-		for self.crt_button in iter(self.button_group):
-			if self.crt_button.acting:
-				print("Executing {} from {} button".format(self.crt_button.action, self.crt_button))
-				self.button_runner(self.crt_button.action)
+		for crt_button in iter(self.button_group):
+			if crt_button.acting:
+				print("Executing {} from {} button".format(crt_button.action, crt_button))
+				self.button_runner(crt_button.action)
 
 	def game_update(self):
 		print("Running UPDATE\n")
@@ -200,72 +207,69 @@ class Game:
 		self.projectile_group.update()
 		self.gui_group.update()
 
-		for self.projectile in projectiles_list:
-			self.projectile_group.add(self.projectile)
+		for projectile in projectiles_list:
+			self.projectile_group.add(projectile)
 		projectiles_list.clear()
 
-		self.player_collisions = pgm.sprite.groupcollide(self.player_group, self.non_crossable_group, False, False)
+		player_collisions = pgm.sprite.groupcollide(self.player_group, self.non_crossable_group, False, False)
 		#migth need to change that code to groupcollide() to handle all the players
-		self.item_collide = pgm.sprite.groupcollide(self.player_group, self.weapon_group, False, False)
-		self.damageable_collisions = pgm.sprite.groupcollide(self.damageable_group, self.projectile_group, False, False)
+		item_collide = pgm.sprite.groupcollide(self.player_group, self.weapon_group, False, False)
+		damageable_collisions = pgm.sprite.groupcollide(self.damageable_group, self.projectile_group, False, False)
 		self.pjt_non_crossable_coll = pgm.sprite.groupcollide(self.projectile_group, self.non_crossable_group, True, False)
 
-		if self.player_collisions:
-			print("Player collisions dict is: {}".format(self.player_collisions))
-			for self.player in self.player_collisions.keys():
-				print("{} ({};{}), with a velocity of: {} has collided with {}".format(self.player, self.player.rect.x, self.player.rect.y, self.player.vel, self.player_collisions[self.player]))
-				for self.collision in self.player_collisions[self.player]:
+		if player_collisions:
+			print("Player collisions dict is: {}".format(player_collisions))
+			for player in player_collisions.keys():
+				print("{} ({};{}), with a velocity of: {} has collided with {}".format(player, player.rect.x, player.rect.y, player.vel, player_collisions[player]))
+				for collision in player_collisions[player]:
 					#Handling of the down collision
-					if self.player.rect.y + self.player.rect.height >= self.collision.rect.y and self.player.rect.y + self.player.rect.height < self.collision.rect.y + (self.collision.rect.height / 2):
-						self.player.vel.y = 0
-						self.player.pos.y = self.collision.rect.top - (self.player.rect.height/2)
+					if player.rect.y + player.rect.height >= collision.rect.y and player.rect.y + player.rect.height < collision.rect.y + (collision.rect.height / 2):
+						player.vel.y = 0
+						player.pos.y = collision.rect.top - (player.rect.height/2)
 						print("Down collision")
 
 					#Handling of the up collision
-					if (self.player.rect.y <= self.collision.rect.y + self.collision.rect.height and self.player.rect.y >= (self.collision.rect.y + self.collision.rect.height - 5)) and (self.player.rect.x + self.player.rect.width >= self.collision.rect.x and self.player.rect.x <= self.collision.rect.x + self.collision.rect.width):
-						self.player.vel.y = 0.5
-						self.player.pos.y = self.collision.rect.bottom + (self.player.rect.height /2) + 1
+					if (player.rect.y <= collision.rect.y + collision.rect.height and player.rect.y >= (collision.rect.y + collision.rect.height - 5)) and (player.rect.x + player.rect.width >= collision.rect.x and player.rect.x <= collision.rect.x + collision.rect.width):
+						player.vel.y = 0.5
+						player.pos.y = collision.rect.bottom + (player.rect.height /2) + 1
 						print("Up collision")
 
-					#Handling of the left collision
-					if (self.player.rect.x <= self.collision.rect.x + self.collision.rect.width and self.player.rect.x > self.collision.rect.x + (self.collision.rect.width -4.17)):
-						self.player.vel.x = 0
-
-						#self.player.vel.x = self.player.vel.x * -0.3
-						self.player.pos.x = self.collision.rect.right + (self.player.rect.width /2)
-						print("Left collision")
-   
 					#Handling of the right collision
-					if (self.player.rect.x + self.player.rect.width >= self.collision.rect.x and self.player.rect.x + self.player.rect.width < self.collision.rect.x + 4.17) and (self.player.rect.y <= self.collision.rect.y + self.collision.rect.height and self.player.rect.y + self.player.rect.height >= self.collision.rect.y):
-						self.player.vel.x = 0
-						self.player.pos.x = self.collision.rect.left - (self.player.rect.width / 2)
+					if (player.rect.x <= collision.rect.x + collision.rect.width and player.rect.x > collision.rect.x + (collision.rect.width -4.17)):
+						player.vel.x = 0
+
+						player.pos.x = collision.rect.right + (player.rect.width /2)
 						print("Right collision")
+   
+					#Handling of the left collision
+					if (player.rect.x + player.rect.width >= collision.rect.x and player.rect.x + player.rect.width < collision.rect.x + 4.17) and (player.rect.y <= collision.rect.y + collision.rect.height and player.rect.y + player.rect.height >= collision.rect.y):
+						player.vel.x = 0
+						player.pos.x = collision.rect.left - (player.rect.width / 2)
+						print("Left collision")
 
 		#item pickup
-		if self.item_collide:
-			#print("\nItem collide: " ,self.item_collide)
-			for self.player_on_item in self.item_collide.keys():
-				if self.player_on_item.weapon != self.item_collide[self.player_on_item][0]:
-					self.player_on_item.pickup(self.item_collide)
+		if item_collide:
+			#print("\nItem collide: " ,item_collide)
+			for player_on_item in item_collide.keys():
+				if player_on_item.weapon != item_collide[player_on_item][0]:
+					player_on_item.pickup(item_collide)
 
 		#damage handler
-		if self.damageable_collisions:
-			#print("Bullet collissions", self.damageable_collisions)
-			for self.dmg_collision in self.damageable_collisions.keys():
-				self.dmg_to_deal = 0
-				print("DMG", self.dmg_collision)
-				for self.hitting_projectile in self.damageable_collisions[self.dmg_collision]:
-					print("The projectile {} hit {} at a speed of {}".format(self.hitting_projectile,self.dmg_collision ,self.hitting_projectile.speed))
-					self.dmg_to_deal += self.hitting_projectile.damage
-					self.hitting_projectile.kill()
+		if damageable_collisions:
+			#print("Bullet collissions", damageable_collisions)
+			for dmg_collision in damageable_collisions.keys():
+				dmg_to_deal = 0
+				print("DMG", dmg_collision)
+				for hitting_projectile in damageable_collisions[dmg_collision]:
+					print("The projectile {} hit {} at a speed of {}".format(hitting_projectile,dmg_collision ,hitting_projectile.speed))
+					dmg_to_deal += hitting_projectile.damage
+					hitting_projectile.kill()
 
-				print("Sprite will be dealt {} damage points".format(self.dmg_collision,self.dmg_to_deal))
-				self.dmg_collision.damage(self.dmg_to_deal)
+				print("Sprite will be dealt {} damage points".format(dmg_collision,dmg_to_deal))
+				dmg_collision.damage(dmg_to_deal)
 
 		#handling explosions
 		
-
-
 
 	def run(self):
 		print("Game took {} seconds to load".format(time.time() - started_loading_time))
@@ -284,15 +288,15 @@ class Game:
 
 	def render(self):
 		print("Running RENDER")
-		self.main_window.fill(BACKGROUND)
+		self.screen.fill(BACKGROUND)
 		if not self.game_paused:
-			self.projectile_group.draw(self.main_window)
-			self.non_crossable_group.draw(self.main_window)
-			self.player_group.draw(self.main_window)
-			self.weapon_group.draw(self.main_window)
-			self.projectile_group.draw(self.main_window)
-		self.gui_group.draw(self.main_window)
-		#self.gui_group.draw(self.main_window)
+			self.projectile_group.draw(self.screen)
+			self.non_crossable_group.draw(self.screen)
+			self.player_group.draw(self.screen)
+			self.weapon_group.draw(self.screen)
+			self.projectile_group.draw(self.screen)
+		self.gui_group.draw(self.screen)
+		self.main_window.blit(self.screen, (0,0))
 		pgm.display.flip()
 
 	def stop_game(self):
@@ -305,8 +309,9 @@ class Game:
 		global BACKGROUND
 		if self.all_sprites_group:
 			for sprite in iter(self.all_sprites_group): sprite.kill()
+		self.game_paused = False
 		BACKGROUND = WHITE
-		self.screen_loader(startmenu)
+		self.load_screen(startmenu)
 		self.render()
 
 	def button_runner(self, action=None):
@@ -321,31 +326,30 @@ class Game:
 		self.game_started = True
 		for gui_element in iter(self.gui_group): gui_element.kill()
 		BACKGROUND = BLACK
-		self.screen_loader(world)
-
-
+		self.load_screen(world)
 	def show_score_screen(self):
 		global BACKGROUND
 		self.game_started = False
 		for sprite in iter(self.all_sprites_group): sprite.kill()
 		BACKGROUND = WHITE
 		self.main_window.fill(BACKGROUND)
-		self.screen_loader(scoremenu)
-
+		self.load_screen(scoremenu)
 	def show_loading_screen(self):
 		'''a screen which, I hope will never be needed for this game.
-		Still I've laways wished to make up my own loading screen ^^'''
+		Still I've always wished to make up my own loading screen ^^'''
 		global BACKGROUND
 		BACKGROUND = BLACK
-		self.show_loading_screen(loadingmenu)
+		self.load_screen(loadingmenu)
 
 	def show_settings_screen(self):
 		pass
 	def show_pause_screen(self):
 		global BACKGROUND
+		#doesn't seems to prevent ser from invoking pause menu while in main menu...
+		if self.game_started == False:return None
 		self.game_paused = True
 		BACKGROUND = WHITE
-		self.screen_loader(pausemenu)
+		self.load_screen(pausemenu)
 
 	def resume_game(self):
 		'''meant to make the game sprites drawn and updated again.'''
@@ -360,8 +364,6 @@ print("LOADING...")
 g = Game()
 print()
 
-def passing(command):
-	eval("g."+command)
 
 if __name__ == '__main__':
 	g.run()

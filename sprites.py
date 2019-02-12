@@ -14,7 +14,7 @@ from destructibles import destructibles_types as dstr
 import main as main
 vec = pgm.math.Vector2
 
-projectiles_list = []
+projectiles_list = input_field_txt_list = []
 
 class Player(pgm.sprite.Sprite):
 	"""player's sprite class"""
@@ -33,16 +33,19 @@ class Player(pgm.sprite.Sprite):
 		self.can_jump = True
 		self.hp = PLAYER_HP
 		self.time_of_jump = time.time()
-		self.last_anim_time = pgm.time.get_ticks()
+		self.last_anim_time = 0
 		self.has_wpn = False
 		self.last_side = 1
 		self.last_time = 0
 		self.started_to_reload = 0
 		self.weapon = None
+		self.last_idx = 0
 		#print("{} dict is ->".format(self) ,self.__dict__)
 
 
 	def load_sprites(self):
+		'''add some automotix sorter to figure out the indexes of each sprite state (idle, left, right, up)''' 
+		print("Loading {} sprites".format(self))
 		self.path = "./Sprites/Players/Lizard/"
 		self.sprt_list = []
 		self.current_sprite_int = 0
@@ -57,15 +60,19 @@ class Player(pgm.sprite.Sprite):
 
 		#handling user input
 		pressed_keys = pgm.key.get_pressed()
+		#determining if the player want to go left (1) or right (2) or idle (0)
+		self.walking_dir = 0
 		#accelarating left
 		if pressed_keys[eval("pgm."+self.profile[0])]:
 			self.acc.x = - PLAYER_ACCELERATION
 			self.last_side = -1
+			self.walking_dir = 1
 			#print("Turning left -> Last side is {}".format(self.last_side))
 		#accelerating right
 		if pressed_keys[eval("pgm."+self.profile[1])]:
 			self.acc.x = PLAYER_ACCELERATION
 			self.last_side = 1
+			self.walking_dir = 2
 			#print("Turning right -> Last side is {}".format(self.last_side))
 		#jumping
 		if not pressed_keys[eval("pgm."+self.profile[2])]:
@@ -93,8 +100,6 @@ class Player(pgm.sprite.Sprite):
 			if self.last_side == -1:
 				self.weapon.rect.x = self.rect.x + (self.rect.width/2) - self.weapon.rect.width
 				self.weapon.rect.y = self.rect.y + (self.rect.height/2)
-
-
 			if pressed_keys[eval("pgm."+self.profile[5])]:
 				self.shoot()
 
@@ -111,17 +116,31 @@ class Player(pgm.sprite.Sprite):
 
 	def animate(self):
 		'''work in progress'''
-		self.current_time = pgm.time.get_ticks()
-		print(self.current_time - self.last_anim_time)
-		if self.current_sprite_int >= self.len_sprt:
-			self.current_sprite_int = 0
-		elif self.current_time - self.last_anim_time == 20:
-			self.current_sprite_int +=1
-			print("Changing used sprite")
-			self.image = self.sprt_list[math.floor(self.current_sprite_int)]
-			self.rect_coo = self.rect
-			self.rect =self.image.get_rect()
-			self.rect = self.rect_coo
+		self.anim_time = pgm.time.get_ticks()
+		print("{} ticks has elapsed since last animation".format(self.last_anim_time - self.anim_time))
+		if self.walking_dir == 1:
+			crt_idx = (2,3)
+		elif self.walking_dir == 2:
+			crt_idx = (4,5)
+		elif self.walking_dir == 0:
+			if self.can_jump: #use another condition
+				crt_idx = (6, 6)
+			else:
+				crt_idx = (0,1)
+
+		if crt_idx[0] >= self.last_idx <= crt_idx[1]:
+			if self.last_idx == crt_idx[1]:
+				crt_idx = crt_idx[0]
+			#elif (self.last_anim_time - self.anim_time)%20 == 0:
+			else:
+				crt_idx = self.last_idx + 1
+		else:
+			crt_idx = crt_idx[0]
+
+		self.last_idx = crt_idx
+		self.image = self.sprt_list[crt_idx]
+		self.last_anim_time == pgm.time.get_ticks()
+
 
 	def pickup(self, coll_dict):
 		self.coll_dict = coll_dict
@@ -486,7 +505,6 @@ class ImageButton(pgm.sprite.Sprite):
 class InputField(pgm.sprite.Sprite):
 	"""docstring for InputField, heavily depends on TextSurface. Just a prototype, not very well written
 	add a background image to help the user determine the nature of the sprite and its rect
-	change colors to have a greyed out hint_text
 	add a limit to the TextSurface width"""
 	def __init__(self, x, y, hint_text, fg_color=BLUE, bg_color=None):
 		pgm.sprite.Sprite.__init__(self)
@@ -513,8 +531,8 @@ class InputField(pgm.sprite.Sprite):
 			self.txt_displayer.chg_color()
 
 		if self.focused and self.key!=None:
-			if self.crt_txt == "": self.crt_txt = self.hint_text
-			else: self.crt_txt = ""
+			#if self.crt_txt == "": self.crt_txt = self.hint_text
+			#else: self.crt_txt = ""
 
 
 			'''new_txt is the text that will replace the currently drawn one. crt text is the text currenrtly being
@@ -525,6 +543,7 @@ class InputField(pgm.sprite.Sprite):
 			#print("KEYDOWN dict:\t{}".format(pgm.event.))
 			print("Currently pressing {}".format(self.key))
 			if self.key == "pgm.K_BACKSPACE":
+				#Incorrect
 				if len(self.str_to_append) == 0:
 					self.new_text = self.crt_txt[:-1]
 					print("\nOld text was {} new text is {}".format(self.crt_txt, self.new_txt))
@@ -533,18 +552,19 @@ class InputField(pgm.sprite.Sprite):
 					self.str_to_append = self.str_to_append[:-1]
 
 			else:
-				self.str_to_append.join(self.key)
+				self.str_to_append = self.str_to_append + self.key
 				print("Joining {} to {}".format(self.key, self.str_to_append))
-			self.new_txt.join(self.str_to_append)
-			print("After joining {}, new_txt is:\t{}".format(self.str_to_append, self.new_txt))
-			self.crt_txt = self.new_txt
-			print("\nOld text was {} new TextSurface will be {}".format(self.crt_txt, self.crt_txt))
+			self.crt_txt = self.crt_txt + self.str_to_append
+			print("After joining {}, new_txt is:\t{}".format(self.str_to_append, self.crt_txt))
+			#print("\nOld text was {} new TextSurface will be {}".format(self.crt_txt, self.crt_txt))
 			self.update_text(self.crt_txt)
 
 	def update_text(self, new_txt):
+		global input_field_txt_list
 		self.txt_displayer.kill()
+		print(self.txt_displayer)
 		self.txt_displayer = TextSurface(self.rect.x, self.rect.y, new_txt, self.fg_color, self.bg_color)
-
+		input_field_txt_list.append(self.txt_displayer)
 
 
 class Ladder(pgm.sprite.Sprite):
