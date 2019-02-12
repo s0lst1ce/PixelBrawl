@@ -1,6 +1,6 @@
 # ROADMAP
 
-*NB:* This roadmap is subject to change at any moment. If there's any feature you'd like me to add please post a comment before asking for a pull request for the roadmap.
+*NB:* This roadmap is subject to change at any moment. If there's any feature you'd like me to add please make an issue with the `enhancement` tag & if you're interested, make a new branch proposing the changes.
 
 ### v0.2-a2 - RELEASED:
 
@@ -17,6 +17,9 @@
   - [x] Add Text
   - [x] Add Buttons
   - [ ] Add Typping entry
+- [x] Create a consistent map definition format & filetype
+- [x] Add spawnpoints
+- [x] Add full shared screen multiplayer support
 
 ### v0.4-b1:
 
@@ -31,18 +34,16 @@
 
 - [ ] Add more types of projectiles such as explosive ones
 - [ ] Add melee weapons
-- [x] Add spawnpoints
-- [x] Add full shared screen multiplayer support
 - [ ] Add perks
 
 ### v0.6-b3:
 
 - [ ] Add explosives
-- [ ] Improve general code
+- [ ] General code improvement
   - [x] Re-write the `start()` function with loops to handle different maps
   - [ ] Improve weapons handler & re-write
   - [x] Improve Groups handler 
-- [x] Create a consistent map definition format & filetype
+  - [ ] Add mask collisions for better visual feedback & gameplay
 - [ ] Add throwables
 
 
