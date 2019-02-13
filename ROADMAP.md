@@ -16,7 +16,7 @@
   - [ ] Add Menus
   - [x] Add Text
   - [x] Add Buttons
-  - [ ] Add Typping entry
+  - [x] Add Typping entry
 - [x] Create a consistent map definition format & filetype
 - [x] Add spawnpoints
 - [x] Add full shared screen multiplayer support
