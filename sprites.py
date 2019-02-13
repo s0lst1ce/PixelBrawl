@@ -383,12 +383,13 @@ class TextSurface(pgm.sprite.Sprite):
 		self.text = text
 		self.bg_color = bg_color
 		self.fg_color = fg_color
-		if bg_color!=None: self.on_hover_bg_color = (self.bg_color[0]-math.floor(0.3*self.bg_color[0]), self.bg_color[1]-math.floor(0.3*self.bg_color[1]), self.bg_color[2]-math.floor(0.3*self.bg_color[2]))
-		else: self.on_hover_bg_color = bg_color
+		if self.bg_color == None: self.bg_color=ALPHA
+		if self.bg_color!=ALPHA: self.on_hover_bg_color = (self.bg_color[0]-math.floor(0.3*self.bg_color[0]), self.bg_color[1]-math.floor(0.3*self.bg_color[1]), self.bg_color[2]-math.floor(0.3*self.bg_color[2]))
+		else: self.on_hover_bg_color = self.bg_color
 		self.txt_font = pgm_frtp.Font(None, 20)
 		self.txt_rect = self.txt_font.get_rect(self.text)
 		self.image = pgm.Surface((self.txt_rect.w+TEXT_CORR_W, self.txt_rect.h+TEXT_CORR_H)).convert_alpha()
-		self.image.fill(ALPHA)
+		self.image.fill(self.bg_color)
 		self.rect = self.image.get_rect()
 		self.rect.x = x - (self.txt_rect.w /2)
 		self.rect.y = y
@@ -426,6 +427,7 @@ class TextButton(pgm.sprite.Sprite):
 		self.bg_color = bg_color
 		self.fg_color = fg_color
 		self.txt_displayer = TextSurface(x, y, self.text, self.fg_color, self.bg_color)
+		#self.txt_displayer.image.fill(self.bg_color)
 		self.image = self.txt_displayer.image
 		self.rect = self.txt_displayer.rect
 		self.was_hovered = False
@@ -435,7 +437,7 @@ class TextButton(pgm.sprite.Sprite):
 		self.events = pgm.event.get()
 		self.mouse_pos = pgm.mouse.get_pos()
 		if (self.mouse_pos[0]>= self.rect.x and self.mouse_pos[0]<= self.rect.x + self.rect.w) and (self.mouse_pos[1]>= self.rect.y and self.mouse_pos[1] <=self.rect.y + self.rect.h) :
-			self.txt_displayer.chg_color(state=1)
+			self.txt_displayer.chg_color(state=1, bg_color=self.txt_displayer.on_hover_bg_color)
 			self.was_hovered = True
 			self.mouse_clicks = pgm.mouse.get_pressed()
 			if self.mouse_clicks[0]:
