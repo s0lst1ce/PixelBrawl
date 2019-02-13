@@ -14,7 +14,7 @@ from destructibles import destructibles_types as dstr
 import main as main
 vec = pgm.math.Vector2
 
-projectiles_list = input_field_txt_list = []
+projectiles_list = []
 
 class Player(pgm.sprite.Sprite):
 	"""player's sprite class"""
@@ -387,7 +387,7 @@ class TextSurface(pgm.sprite.Sprite):
 		else: self.on_hover_bg_color = bg_color
 		self.txt_font = pgm_frtp.Font(None, 20)
 		self.txt_rect = self.txt_font.get_rect(self.text)
-		self.image = pgm.Surface((self.txt_rect.w+TEXT_CORR_W, self.txt_rect.h+TEXT_CORR_H))
+		self.image = pgm.Surface((self.txt_rect.w+TEXT_CORR_W, self.txt_rect.h+TEXT_CORR_H)).convert_alpha()
 		self.image.fill(ALPHA)
 		self.rect = self.image.get_rect()
 		self.rect.x = x - (self.txt_rect.w /2)
@@ -398,20 +398,20 @@ class TextSurface(pgm.sprite.Sprite):
 		self.rect.x = new_pos[0]
 		self.rect.y = new_pos[1]
 
-	def chg_color(self, state=0):
+	def chg_color(self, state=0, bg_color=ALPHA):
 		'''state is 0 if the bgcolor is normal and 1 if highlighted'''
 		if state==1:
 			self.new_bg_color = self.on_hover_bg_color
 		else:
 			self.new_bg_color = self.bg_color
-		self.image.fill(ALPHA)
+		self.image.fill(bg_color)
 		self.txt_font.render_to(self.image, (TEXT_CORR_W/2,TEXT_CORR_H	/2), self.text, fgcolor=self.fg_color, bgcolor=self.new_bg_color)
 
-	def chg_txt(self, new_txt):
+	def chg_txt(self, new_txt, bg_color=ALPHA):
 		'''Improve the code in order to rebuild the image surface to fit the
 		whole new text perfectly -> really needed ?
 		'''
-		self.image.fill(ALPHA)
+		self.image.fill(bg_color)
 		self.text = new_txt
 		self.txt_rect = self.txt_font.get_rect(new_txt)
 		self.rect.w = self.txt_rect.w
@@ -425,37 +425,24 @@ class TextButton(pgm.sprite.Sprite):
 		self.action = action
 		self.bg_color = bg_color
 		self.fg_color = fg_color
-		self.on_hover_bg_color = (self.bg_color[0]-math.floor(0.3*self.bg_color[0]), self.bg_color[1]-math.floor(0.3*self.bg_color[1]), self.bg_color[2]-math.floor(0.3*self.bg_color[2]))
-		print(self.on_hover_bg_color)
-		self.txt_font = pgm_frtp.Font(None, 20)
-		self.txt_rect = self.txt_font.get_rect(self.text)
-		self.image = pgm.Surface((self.txt_rect.w, self.txt_rect.h))
-		self.image = self.image.convert_alpha()
-		self.rect = self.image.get_rect()
-		self.rect.x = x - (self.txt_rect.w /2)
-		self.rect.y = y
-		self.txt_font.render_to(self.image, (0, 0), self.text, fgcolor=self.fg_color, bgcolor=self.bg_color)
+		self.txt_displayer = TextSurface(x, y, self.text, self.fg_color, self.bg_color)
+		self.image = self.txt_displayer.image
+		self.rect = self.txt_displayer.rect
 		self.was_hovered = False
 		self.acting = False
-
-	def chg_color(self, new_fg_color, new_bg_color):
-		self.txt_font.render_to(self.image, (0, 0), self.text, fgcolor=new_fg_color, bgcolor=new_bg_color)
 
 	def update(self):
 		self.events = pgm.event.get()
 		self.mouse_pos = pgm.mouse.get_pos()
 		if (self.mouse_pos[0]>= self.rect.x and self.mouse_pos[0]<= self.rect.x + self.rect.w) and (self.mouse_pos[1]>= self.rect.y and self.mouse_pos[1] <=self.rect.y + self.rect.h) :
-			self.on_hover()
+			self.txt_displayer.chg_color(state=1)
+			self.was_hovered = True
 			self.mouse_clicks = pgm.mouse.get_pressed()
 			if self.mouse_clicks[0]:
 				self.acting = True
 		elif self.was_hovered:
 			self.was_hovered = False
-			self.chg_color(self.fg_color, self.bg_color)
-
-	def on_hover(self):
-		self.chg_color(self.fg_color, self.on_hover_bg_color)
-		self.was_hovered = True
+			self.txt_displayer.chg_color(bg_color=self.bg_color)
 
 
 class ImageButton(pgm.sprite.Sprite):
@@ -492,8 +479,7 @@ class ImageButton(pgm.sprite.Sprite):
 
 class InputField(pgm.sprite.Sprite):
 	"""docstring for InputField, heavily depends on TextSurface. Just a prototype, not very well written
-	add a background image to help the user determine the nature of the sprite and its rect
-	add a limit to the TextSurface width"""
+	add a background image to help the user determine the nature of the sprite and its rect"""
 	def __init__(self, x, y, hint_text, fg_color=BLUE, bg_color=None):
 		pgm.sprite.Sprite.__init__(self)
 		self.hint_text = self.crt_txt = hint_text
@@ -529,25 +515,18 @@ class InputField(pgm.sprite.Sprite):
 			self.new_txt = self.crt_txt
 			self.str_to_append = ""
 			#print("KEYDOWN dict:\t{}".format(pgm.event.))
-			print("Currently pressing {}".format(self.key))
 			if self.key == "\b":
 				if len(self.str_to_append) == 0:
 					self.crt_txt = self.crt_txt[:-1]
-					print("\nOld text was {} new text is {}".format(self.crt_txt, self.new_txt))
 				else:
-					print("\nOld text was {} new text is {}".format(self.str_to_append, self.str_to_append[:-1]))
 					self.str_to_append = self.str_to_append[:-1]
 
 			else:
 				self.str_to_append = self.str_to_append + self.key
-				print("Joining {} to {}".format(self.key, self.str_to_append))
 			self.crt_txt = self.crt_txt + self.str_to_append
-			print("After joining {}, new_txt is:\t{}".format(self.str_to_append, self.crt_txt))
 
 			#if self.txt_displayer.txt_rect.w >= INPUT_MAX_LENGTH:
 			drawn_txt = self.crt_txt[-INPUT_MAX_LENGTH:]
-			print("{} will be drawn".format(drawn_txt))
-
 			self.txt_displayer.chg_txt(drawn_txt)
 
 class Ladder(pgm.sprite.Sprite):

@@ -23,11 +23,11 @@
 
 ### v0.4-b1:
 
-- [ ] Make a cx_Freeze script to easilly distribute game
+- [x] Make a cx_Freeze script to easilly distribute game
 - [ ] Add en error log to improve community feedback
-- [ ] Fix transparency
+- [x] Fix transparency
 - [ ] Replace Pygame rectangles by drawn sprites
-  - [ ] Add animations
+- [ ] Add animations
 - [ ] Add sound
 
 ### v0.5-b2:

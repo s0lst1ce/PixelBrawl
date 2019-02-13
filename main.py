@@ -187,9 +187,6 @@ class Game:
 
 	def gui_update(self):
 		global input_field_txt_list
-		for txt in input_field_txt_list:
-			self.textsurface_group.add(txt)
-		input_field_txt_list.clear()
 		self.refresh_groups()
 		self.gui_group.update()
 		print("Text surfaces are {}".format(self.textsurface_group))
