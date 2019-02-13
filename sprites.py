@@ -49,9 +49,8 @@ class Player(pgm.sprite.Sprite):
 		self.path = "./Sprites/Players/Lizard/"
 		self.sprt_list = []
 		self.current_sprite_int = 0
-		for self.sprt_file in os.listdir(self.path):
-			self.sprt_list.append(pgm.image.load(str(self.path +self.sprt_file)).convert_alpha())
-		self.len_sprt = len(self.sprt_list)
+		for sprt_file in os.listdir(self.path):
+			self.sprt_list.append(pgm.image.load(str(self.path +sprt_file)).convert_alpha())
 
 	def update(self):
 		#print("Player Sprite is updating last side is {}".format(self.last_side))
@@ -338,9 +337,6 @@ class Explosive(pgm.sprite.Sprite):
 		print("\nDirections for the projectiles will be \n{}".format(pjts_dirs))
 		return pjts_dirs
 
-
-
-
 	def explode(self):
 		print("{} is exploding".format(self))
 		'''should I first remove the explosive from all groups ?'''
@@ -375,16 +371,6 @@ class ExplosiveProjectile(pgm.sprite.Sprite):
 	def distance_from_orig(self):
 		#print("Will square {}".format(((self.orig_x - self.rect.x)^2) + ((self.orig_y - self.rect.y)^2)))
 		return math.sqrt((self.orig_x - self.rect.x)**2 + (self.orig_y - self.rect.y)**2)
-
-class Throwables(pgm.sprite.Sprite):
-	"""docstring for Throwables Sprite class"""
-	def __init__(self, x, y, thrb_name):
-		pgm.sprite.Sprite.__init__(self)
-		self.image = pgm.Surface((thrb))
-
-		self.x = x
-		self.y = y
-		self.thrb_name = thrb_name
 		
 class TextSurface(pgm.sprite.Sprite):
 	"""docstring for Text, is there a way to delete a surface or remove
@@ -401,12 +387,12 @@ class TextSurface(pgm.sprite.Sprite):
 		else: self.on_hover_bg_color = bg_color
 		self.txt_font = pgm_frtp.Font(None, 20)
 		self.txt_rect = self.txt_font.get_rect(self.text)
-		self.image = pgm.Surface((self.txt_rect.w, self.txt_rect.h))
+		self.image = pgm.Surface((self.txt_rect.w+TEXT_CORR_W, self.txt_rect.h+TEXT_CORR_H))
 		self.image.fill(ALPHA)
 		self.rect = self.image.get_rect()
 		self.rect.x = x - (self.txt_rect.w /2)
 		self.rect.y = y
-		self.txt_font.render_to(self.image, (0,0), self.text, fgcolor=self.fg_color, bgcolor=None)
+		self.txt_font.render_to(self.image, (TEXT_CORR_W/2,TEXT_CORR_H	/2), self.text, fgcolor=self.fg_color, bgcolor=None)
 
 	def chg_pos(self, new_pos=(0,0)):
 		self.rect.x = new_pos[0]
@@ -418,16 +404,18 @@ class TextSurface(pgm.sprite.Sprite):
 			self.new_bg_color = self.on_hover_bg_color
 		else:
 			self.new_bg_color = self.bg_color
-		self.txt_font.render_to(self.image, (0,0), self.text, fgcolor=self.fg_color, bgcolor=self.new_bg_color)
+		self.image.fill(ALPHA)
+		self.txt_font.render_to(self.image, (TEXT_CORR_W/2,TEXT_CORR_H	/2), self.text, fgcolor=self.fg_color, bgcolor=self.new_bg_color)
 
 	def chg_txt(self, new_txt):
 		'''Improve the code in order to rebuild the image surface to fit the
-		whole new text perfectly
+		whole new text perfectly -> really needed ?
 		'''
 		self.image.fill(ALPHA)
+		self.text = new_txt
 		self.txt_rect = self.txt_font.get_rect(new_txt)
 		self.rect.w = self.txt_rect.w
-		self.txt_font.render_to(self.image, (0,0), new_txt, fgcolor=self.fg_color, bgcolor=None)
+		self.txt_font.render_to(self.image, (TEXT_CORR_W/2,TEXT_CORR_H	/2), new_txt, fgcolor=self.fg_color, bgcolor=None)
 
 class TextButton(pgm.sprite.Sprite):
 	"""docstring for Button how could I make it inherit from TextSurface ?"""
@@ -522,7 +510,8 @@ class InputField(pgm.sprite.Sprite):
 		self.key = key
 		if (self.mouse_pos[0]>= self.rect.x and self.mouse_pos[0]<= self.rect.x + self.rect.w) and (self.mouse_pos[1]>= self.rect.y and self.mouse_pos[1] <=self.rect.y + self.rect.h) :
 			self.was_hovered = True #replaces the on_hover function along with the next line
-			self.txt_displayer.chg_color(state=1)
+			if self.crt_txt == self.hint_text or "":
+				self.txt_displayer.chg_color(state=1)
 			self.mouse_clicks = pgm.mouse.get_pressed()
 			if self.mouse_clicks[0]:
 				self.focused = True
@@ -531,21 +520,19 @@ class InputField(pgm.sprite.Sprite):
 			self.txt_displayer.chg_color()
 
 		if self.focused and self.key!=None:
-			#if self.crt_txt == "": self.crt_txt = self.hint_text
-			#else: self.crt_txt = ""
-
-
 			'''new_txt is the text that will replace the currently drawn one. crt text is the text currenrtly being
 			drawn. str_to_append is the string which will be joined to new_txt
 			simplify the number of variables'''
+			if self.crt_txt == self.hint_text:
+				self.crt_txt = ""
+
 			self.new_txt = self.crt_txt
 			self.str_to_append = ""
 			#print("KEYDOWN dict:\t{}".format(pgm.event.))
 			print("Currently pressing {}".format(self.key))
-			if self.key == "pgm.K_BACKSPACE":
-				#Incorrect
+			if self.key == "\b":
 				if len(self.str_to_append) == 0:
-					self.new_text = self.crt_txt[:-1]
+					self.crt_txt = self.crt_txt[:-1]
 					print("\nOld text was {} new text is {}".format(self.crt_txt, self.new_txt))
 				else:
 					print("\nOld text was {} new text is {}".format(self.str_to_append, self.str_to_append[:-1]))
@@ -556,16 +543,12 @@ class InputField(pgm.sprite.Sprite):
 				print("Joining {} to {}".format(self.key, self.str_to_append))
 			self.crt_txt = self.crt_txt + self.str_to_append
 			print("After joining {}, new_txt is:\t{}".format(self.str_to_append, self.crt_txt))
-			#print("\nOld text was {} new TextSurface will be {}".format(self.crt_txt, self.crt_txt))
-			self.update_text(self.crt_txt)
 
-	def update_text(self, new_txt):
-		global input_field_txt_list
-		self.txt_displayer.kill()
-		print(self.txt_displayer)
-		self.txt_displayer = TextSurface(self.rect.x, self.rect.y, new_txt, self.fg_color, self.bg_color)
-		input_field_txt_list.append(self.txt_displayer)
+			#if self.txt_displayer.txt_rect.w >= INPUT_MAX_LENGTH:
+			drawn_txt = self.crt_txt[-INPUT_MAX_LENGTH:]
+			print("{} will be drawn".format(drawn_txt))
 
+			self.txt_displayer.chg_txt(drawn_txt)
 
 class Ladder(pgm.sprite.Sprite):
 	"""docstring for Ladder"""
@@ -573,3 +556,13 @@ class Ladder(pgm.sprite.Sprite):
 		pgm.sprite.Sprite.__init__(self)
 		self.image = pgm.Surface((35, h))
 		self.rect= self.image.get_rect()
+
+class Throwables(pgm.sprite.Sprite):
+	"""docstring for Throwables Sprite class"""
+	def __init__(self, x, y, thrb_name):
+		pgm.sprite.Sprite.__init__(self)
+		self.image = pgm.Surface((thrb))
+
+		self.x = x
+		self.y = y
+		self.thrb_name = thrb_name
