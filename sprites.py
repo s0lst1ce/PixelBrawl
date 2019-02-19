@@ -40,7 +40,7 @@ class Player(pgm.sprite.Sprite):
 		self.started_to_reload = 0
 		self.weapon = None
 		self.last_idx = 0
-		#print("{} dict is ->".format(self) ,self.__dict__)
+		print("{} dict is ->".format(self) ,self.__dict__)
 
 
 	def load_sprites(self):
@@ -125,7 +125,7 @@ class Player(pgm.sprite.Sprite):
 		self.pos += self.vel + 0.5 * self.acc
 
 		self.rect.center = self.pos
-		#self.animate()
+		self.animate()
 
 	def animate(self):
 		'''work in progress'''
