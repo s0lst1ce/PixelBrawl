@@ -48,20 +48,21 @@ class Player(pgm.sprite.Sprite):
 		self.path = "./Sprites/Players/Lizard/"
 		self.sprt_list = []
 		self.current_sprite_int = 0
-		crt_radical = ""
-		crt_radical_sprt_list = []
-		crt_nested_list_idx = 0
+#		crt_radical = ""
+#		crt_radical_sprt_list = []
+#		crt_nested_list_idx = 0
 		for sprt_file in os.listdir(self.path):
-			sprt_file_name = sprt_file.split(".")[0]
-			print("Sprite file name:\t{}, with 2 particules:\t{}".format(sprt_file, sprt_file.split("-")))
-			if sprt_file_name.split("-")[0] == crt_radical:
-				crt_radical_sprt_list.insert(int(sprt_file_name.split("-")[1]), sprt_file)
-			else:
-				if len(crt_radical_sprt_list) != 0:
-					for sprt in crt_radical_sprt_list: self.sprt_list.append(pgm.image.load(str(self.path+sprt)).convert_alpha())
-				crt_radical_sprt_list = []
-				crt_radical = sprt_file_name.split("-")[0]
-				crt_radical_sprt_list.insert(int(sprt_file_name.split("-")[1]), sprt_file)
+			self.sprt_list.append(pgm.image.load(str(self.path+sprt_file)).convert_alpha())
+#			sprt_file_name = sprt_file.split(".")[0]
+#			print("Sprite file name:\t{}, with 2 particules:\t{}".format(sprt_file, sprt_file.split("-")))
+#			if sprt_file_name.split("-")[0] == crt_radical:
+#				crt_radical_sprt_list.insert(int(sprt_file_name.split("-")[1]), sprt_file)
+#			else:
+#				if len(crt_radical_sprt_list) != 0:
+#					for sprt in crt_radical_sprt_list: self.sprt_list.append(pgm.image.load(str(self.path+sprt)).convert_alpha())
+#				crt_radical_sprt_list = []
+#				crt_radical = sprt_file_name.split("-")[0]
+#				crt_radical_sprt_list.insert(int(sprt_file_name.split("-")[1]), sprt_file)
 
 			#self.sprt_list.append(pgm.image.load(str(self.path +sprt_file)).convert_alpha())
 		print("Sprite list is:\t{}".format(self.sprt_list))
@@ -125,12 +126,12 @@ class Player(pgm.sprite.Sprite):
 		self.pos += self.vel + 0.5 * self.acc
 
 		self.rect.center = self.pos
-		#self.animate()
+		self.animate()
 
 	def animate(self):
 		'''work in progress'''
 		self.anim_time = pgm.time.get_ticks()
-		print("{} ticks has elapsed since last animation".format(self.last_anim_time - self.anim_time))
+		print("{} ticks has elapsed since last animation".format(self.anim_time-self.last_anim_time))
 		if self.walking_dir == 1:
 			crt_idx = (2,3)
 		elif self.walking_dir == 2:
@@ -151,6 +152,7 @@ class Player(pgm.sprite.Sprite):
 			crt_idx = crt_idx[0]
 
 		self.last_idx = crt_idx
+		print(crt_idx)
 		self.image = self.sprt_list[crt_idx]
 		self.last_anim_time == pgm.time.get_ticks()
 
