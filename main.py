@@ -300,7 +300,6 @@ class Game:
 		self.running = False
 	def starting(self):
 		self.start()
-
 	def show_start_screen(self):
 		print("\n\n--DISPLAYING START MENU--\n\n")
 		global BACKGROUND

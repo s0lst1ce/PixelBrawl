@@ -44,13 +44,27 @@ class Player(pgm.sprite.Sprite):
 
 
 	def load_sprites(self):
-		'''add some automotix sorter to figure out the indexes of each sprite state (idle, left, right, up)''' 
 		print("Loading {} sprites".format(self))
 		self.path = "./Sprites/Players/Lizard/"
 		self.sprt_list = []
 		self.current_sprite_int = 0
+		crt_radical = ""
+		crt_radical_sprt_list = []
+		crt_nested_list_idx = 0
 		for sprt_file in os.listdir(self.path):
-			self.sprt_list.append(pgm.image.load(str(self.path +sprt_file)).convert_alpha())
+			sprt_file_name = sprt_file.split(".")[0]
+			print("Sprite file name:\t{}, with 2 particules:\t{}".format(sprt_file, sprt_file.split("-")))
+			if sprt_file_name.split("-")[0] == crt_radical:
+				crt_radical_sprt_list.insert(int(sprt_file_name.split("-")[1]), sprt_file)
+			else:
+				if len(crt_radical_sprt_list) != 0:
+					for sprt in crt_radical_sprt_list: self.sprt_list.append(pgm.image.load(str(self.path+sprt)).convert_alpha())
+				crt_radical_sprt_list = []
+				crt_radical = sprt_file_name.split("-")[0]
+				crt_radical_sprt_list.insert(int(sprt_file_name.split("-")[1]), sprt_file)
+
+			#self.sprt_list.append(pgm.image.load(str(self.path +sprt_file)).convert_alpha())
+		print("Sprite list is:\t{}".format(self.sprt_list))
 
 	def update(self):
 		#print("Player Sprite is updating last side is {}".format(self.last_side))
@@ -111,7 +125,7 @@ class Player(pgm.sprite.Sprite):
 		self.pos += self.vel + 0.5 * self.acc
 
 		self.rect.center = self.pos
-		self.animate()
+		#self.animate()
 
 	def animate(self):
 		'''work in progress'''
@@ -505,6 +519,8 @@ class InputField(pgm.sprite.Sprite):
 				self.focused = True
 		elif self.was_hovered:
 			self.was_hovered = False
+			#fix
+			if self.crt_txt == "": self.txt_displayer.chg_txt(self.hint_text)
 			self.txt_displayer.chg_color()
 
 		if self.focused and self.key!=None:

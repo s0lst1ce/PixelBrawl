@@ -18,7 +18,6 @@ pause = {
 start = {
 	"TextSurface": [[WIDTH/2, HEIGHT/4, "Pixel Brawl", "#fg_color=DARK_YELLOW"]],
 	"TextButton": [[WIDTH/3, HEIGHT/2, "Start", """#action='start_game'""", '#bg_color=GREEN', '#fg_color=WHITE'], [WIDTH/3*2, HEIGHT/2, "Quit", """#action='''stop_game'''""", '#bg_color=RED', '#fg_color=WHITE']],
-	"InputField": [[WIDTH/2, HEIGHT/3*2, "Type here..."]]
 	#"ImageButton": [[20, HEIGHT-20, "settings_icon.png"]]
 }
 newgame = {
