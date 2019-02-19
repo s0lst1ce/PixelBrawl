@@ -125,7 +125,7 @@ class Player(pgm.sprite.Sprite):
 		self.pos += self.vel + 0.5 * self.acc
 
 		self.rect.center = self.pos
-		self.animate()
+		#self.animate()
 
 	def animate(self):
 		'''work in progress'''
