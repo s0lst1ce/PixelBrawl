@@ -173,7 +173,7 @@ class Game:
 				temp_game_surf = pgm.transform.scale(self.screen, (WIDTH, HEIGHT))
 				print(temp_game_surf)
 				self.screen = temp_game_surf
-				print("Screen {} should be {}x{}".format(self,screen, WIDTH, HEIGHT))
+				#print("Screen {} should be {}x{}".format(self,screen, WIDTH, HEIGHT))
 
 
 
