@@ -9,7 +9,7 @@ If you are intersted in helping in the development please write to me. Also plea
 The game is a multiplayer shared screen. The players all compete in a small arena and must be the last one standing in order to win. Teammatches are planned although I have not started working on them yet.
 
 **BEWARE** The game is in early development and currently barely functionnal. Use at your own risk.
-![v0.3-a1-DEV Main menu screenshot](https://raw.githubusercontent.com/NotaSmartDev/assets/master/Screenshot%20from%202019-02-05%2023-49-45.png)
+![v0.3-a3-DEV Main menu screenshot](https://raw.githubusercontent.com/NotaSmartDev/assets/master/v0.3-a3.png)
 
 ![v0.1-a1 Test map screenshot](https://raw.githubusercontent.com/NotaSmartDev/assets/master/Capture.PNG)
 
