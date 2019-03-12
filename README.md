@@ -31,7 +31,12 @@ Once you have the compiled version downloaded simply extract its contents (if co
 
 ##### With python:
 
-If you have the python interpreter installed all you have to do is to download the source code of the latest stable (`v0.3-a3`) or experimental (`master-branch`) version. Extract the source code into a directory then open a terminal (or command prompt under windows) in the directory and type:
+If you have the python interpreter installed the first thing you should do is to install pygame by running:
+
+- UNIX: `pip3 install pygame`
+- Windows: `pip install pygame --user` . The user option can be omitted if you installed python only for your user.
+
+Then download the source code of the latest stable (`v0.3-a3`) or experimental (`master-branch`) version. Extract the source code into a directory then open a terminal (or command prompt under windows) in the directory and type:
 
 - UNIX: `python3 main.py`
 - Windows: `py main.py`
