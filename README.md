@@ -47,5 +47,25 @@ That's it ! I hope you enjoy. Don't hesitate to give me your feedback !
 
 ### How to play:
 
-The game is played with 5 keys. Three to move up, left and right. Then one to pickup items and another to shoot. The last one is meant to crouch although this function has not been implemented in the alpha yet.
-The final version will contain a settings screen which will enable players to cutomize the keymaps.
+##### Controls
+
+The goal of the game is to kill your opponent(s). To do this your first task is to pick up a weapon. For this you need first to move to it using:
+
+- Player1: The arrow keys
+
+- Player2: `w`, `a` and `d`
+
+Then you're going to need to pickup the said weapon. For this use the pickup key:
+
+- Player1: The `down` arrow key
+- Player2: `s`
+
+Once that's done you can shoot at whatever seemd best to kill you enemy by pressing:
+- Player1: `space` (aka the spacebar)
+- Player2: `c`
+
+##### Configuration
+
+
+
+Although the game doesn't yet (see #12 ) allow you to change the controls you can still do it with some manual configurations ! To do this open the `settings.py` file into your favorite text editor and change the PLAYER PROFILEs. The file is documented so it tells you which key refers to what. However it doesn't come with a list of all the pygame keys names. To find them head over to their [website](https://www.pygame.org/docs/ref/key.html). If you have trouble with this and can't wait for me to implement the settings in the game, post a comment on issue #12 .
