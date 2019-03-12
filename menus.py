@@ -6,9 +6,11 @@ also it's far from being pythonic
 
 NB: change the nested strings + "#" which is a flag for keyword argument (see main.py: screen_loader()) '''
 settings = {
-	"TextSurface": [],
-	"TextButton": [],
-	"ImageButton": []
+	"TextSurface": [[WIDTH/2, HEIGHT/10, "Settings", "#fg_color=BLACK"],[WIDTH/4, HEIGHT/10*2, "Resolution:", "#fg_color=BLACK"]],
+	"TextButton": [[WIDTH/2, HEIGHT/8*3.5, "Main Menu", """#action='''show_start_screen'''""", '#bg_color=ORANGE', '#fg_color=WHITE'],
+	[WIDTH/3*2.5, HEIGHT/10*2, "Apply", """#action='''change_resolution'''""", '#bg_color=GREEN', '#fg_color=WHITE']],
+	"ImageButton": [],
+	"InputField": [[WIDTH/3*1.5, HEIGHT/10*2, "854", "#nbr=0"],[WIDTH/3*2, HEIGHT/10*2, "480", "#nbr=1"]],
 }
 pause = {
 	"TextSurface": [[WIDTH/2, HEIGHT/6, "Game has been paused", "#fg_color=YELLOW"]],
@@ -18,7 +20,8 @@ pause = {
 start = {
 	"TextSurface": [[WIDTH/2, HEIGHT/4, "Pixel Brawl", "#fg_color=DARK_YELLOW"]],
 	"TextButton": [[WIDTH/3, HEIGHT/2, "Start", """#action='start_game'""", '#bg_color=GREEN', '#fg_color=WHITE'], [WIDTH/3*2, HEIGHT/2, "Quit", """#action='''stop_game'''""", '#bg_color=RED', '#fg_color=WHITE']],
-	#"ImageButton": [[20, HEIGHT-20, "settings_icon.png"]]
+	#"InputField": [[WIDTH/2, HEIGHT/3*2, "Type here..."]],
+	"ImageButton": [[20, HEIGHT-20, "settings-32.png", """#action='show_settings_screen'"""]]
 }
 newgame = {
 	"TextSurface": [],

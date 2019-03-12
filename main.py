@@ -14,11 +14,12 @@ the jump speed being much higher.
 Fix bug where you can stick the player head to a roof
 
 Change Surface definitions which are given as args to automatic resolution
-through sprite image dimensions -> work in progress
-
-delete about 90% of the "self" which are utterly useless and degrading performance while adding complexity
+through sprite image dimensions
 
 rethink game_paused var, really useful ?
+clean up var namespace
+
+maybe replace running by playing -> would make more sense
 '''
 
 import time
@@ -35,14 +36,15 @@ from menus import start as startmenu
 from menus import score as scoremenu
 from menus import pause as pausemenu
 from menus import loading as loadingmenu
-
+from menus import settings as settingsmenu
 
 class Game:
 
 	def __init__(self):
 		#Inits pygame and the sound handler
-		pgm.init()   
-		#pgm.mixer.init()
+		pgm.init()
+		#uninit mixer in order to free an entire CPU core
+		pgm.mixer.quit()
 		#Create window
 		self.main_window = pgm.display.set_mode((WIDTH, HEIGHT)) #removed pgm.RESIZABLE due to issues in scaling, see events()
 		self.screen = pgm.Surface((WIDTH, HEIGHT))
@@ -55,18 +57,16 @@ class Game:
 		self.running = True
 		self.game_started = False
 		self.game_paused = False
+		self.on_settings_menu = False
 		print("[{}:{}]: Game has been initalised".format(0,0))
 		self.make_groups()
 
 	def get_elapsed_time(self, sec_or_min):
 		now_time = (pgm.time.get_ticks() - self.FIRST_TIME) /1000
-		print(now_time)
-		now_time_min = math.floor(now_time / 60) 
-		now_time_sec = math.floor(now_time % 60)
 		if sec_or_min == 0:
-			return now_time_min
+			return math.floor(now_time / 60)
 		else:
-			return now_time_sec
+			return math.floor(now_time % 60)
 
 	def load_screen(self, data_dict):
 		print("\nLOADING SCREEN {}\n\n".format(data_dict))
@@ -147,7 +147,7 @@ class Game:
 	def events(self):
 		print("[{}:{}] Running EVENTS\n".format(self.get_elapsed_time(0), self.get_elapsed_time(1)))
 		for event in pgm.event.get():
-			#print("Processing {} event of {} type".format(event, event.type))
+			print("Processing {} event of {} type".format(event, event.type))
 			if event.type == pgm.QUIT:
 				if self.playing:
 					self.playing = False
@@ -161,7 +161,7 @@ class Game:
 			if (pressed_keys[eval("pgm.K_ESCAPE")] or pressed_keys[eval("pgm.K_{}".format(PAUSE_KEY))]) and self.game_started:
 				if self.game_paused: self.resume_game()
 				else: self.show_pause_screen()
-			if event.type == pgm.VIDEORESIZE:
+			if event.type == pgm.VIDEORESIZE: #/!\ DEPRECATED /!\
 				'''resize screen
 				DEPRECATED -> only meant to stay here as an example but will never execute as pgm.RESIZABLE is set to False
 				in display creation'''
@@ -170,29 +170,27 @@ class Game:
 				print("Display info\t{}".format(pgm.display.Info()))
 				print(self.main_window)
 				#changing resolution of the screen surface
-				temp_game_surf = pgm.transform.scale(self.screen, (WIDTH, HEIGHT))
-				print(temp_game_surf)
-				self.screen = temp_game_surf
+				tmp_game_surf = pgm.transform.scale(self.screen, (WIDTH, HEIGHT))
+				print(tmp_game_surf)
+				self.screen = tmp_game_surf
 				#print("Screen {} should be {}x{}".format(self,screen, WIDTH, HEIGHT))
 
 
-
-		if len(self.player_group) == 1: #what if both player die at the same time ?
+		if len(self.player_group) == 1: #what if both players die at the same time ? too improbable ?
 			self.show_score_screen()
 
 	def update(self):
 		self.gui_update()
 		if self.game_started and not self.game_paused:
+			self.fps_counter.chg_txt(str(int(self.clock.get_fps()))+"FPS")
 			self.game_update()
 
 	def gui_update(self):
-		global input_field_txt_list
 		self.refresh_groups()
 		self.gui_group.update()
-		print("Text surfaces are {}".format(self.textsurface_group))
 		for crt_button in iter(self.button_group):
 			if crt_button.acting:
-				print("Executing {} from {} button".format(crt_button.action, crt_button))
+				crt_button.acting = False
 				self.button_runner(crt_button.action)
 
 	def game_update(self):
@@ -209,7 +207,6 @@ class Game:
 		projectiles_list.clear()
 
 		player_collisions = pgm.sprite.groupcollide(self.player_group, self.non_crossable_group, False, False)
-		#migth need to change that code to groupcollide() to handle all the players
 		item_collide = pgm.sprite.groupcollide(self.player_group, self.weapon_group, False, False)
 		damageable_collisions = pgm.sprite.groupcollide(self.damageable_group, self.projectile_group, False, False)
 		self.pjt_non_crossable_coll = pgm.sprite.groupcollide(self.projectile_group, self.non_crossable_group, True, False)
@@ -256,24 +253,20 @@ class Game:
 			#print("Bullet collissions", damageable_collisions)
 			for dmg_collision in damageable_collisions.keys():
 				dmg_to_deal = 0
-				print("DMG", dmg_collision)
 				for hitting_projectile in damageable_collisions[dmg_collision]:
-					print("The projectile {} hit {} at a speed of {}".format(hitting_projectile,dmg_collision ,hitting_projectile.speed))
 					dmg_to_deal += hitting_projectile.damage
 					hitting_projectile.kill()
-
-				print("Sprite will be dealt {} damage points".format(dmg_collision,dmg_to_deal))
 				dmg_collision.damage(dmg_to_deal)
 
 		#handling explosions
 		
 
 	def run(self):
-		print("Game took {} seconds to load".format(time.time() - started_loading_time))
 		print("Game is RUNNING")
 		frame_count = 0
 		self.playing = True
 		self.show_start_screen()
+		print("Game took {} seconds to load".format(time.time() - started_loading_time))
 		while self.playing:
 			frame_count += 1
 			print("\n\nFRAME", frame_count, "\n")
@@ -306,6 +299,7 @@ class Game:
 		if self.all_sprites_group:
 			for sprite in iter(self.all_sprites_group): sprite.kill()
 		self.game_paused = False
+		self.on_settings_menu = False
 		BACKGROUND = WHITE
 		self.load_screen(startmenu)
 		self.render()
@@ -317,12 +311,16 @@ class Game:
 
 	def stop_game(self):
 		self.playing = False
+
 	def start_game(self):
 		global BACKGROUND
 		self.game_started = True
 		for gui_element in iter(self.gui_group): gui_element.kill()
 		BACKGROUND = BLACK
 		self.load_screen(world)
+		self.fps_counter = TextSurface(WIDTH-40, 0, str(int(self.clock.get_fps()))+"FPS")
+		self.textsurface_group.add(self.fps_counter)
+
 	def show_score_screen(self):
 		global BACKGROUND
 		self.game_started = False
@@ -330,15 +328,14 @@ class Game:
 		BACKGROUND = WHITE
 		self.main_window.fill(BACKGROUND)
 		self.load_screen(scoremenu)
+
 	def show_loading_screen(self):
-		'''a screen which, I hope will never be needed for this game.
+		'''a s0creen which, I hope will never be needed for this game.
 		Still I've always wished to make up my own loading screen ^^'''
 		global BACKGROUND
 		BACKGROUND = BLACK
 		self.load_screen(loadingmenu)
 
-	def show_settings_screen(self):
-		pass
 	def show_pause_screen(self):
 		global BACKGROUND
 		#doesn't seems to prevent ser from invoking pause menu while in main menu...
@@ -353,6 +350,59 @@ class Game:
 		BACKGROUND = BLACK
 		for gui_element in iter(self.gui_group): gui_element.kill()
 		self.game_paused = False
+
+# InputField Settings Screen handler functions
+
+	def show_settings_screen(self):
+		global BACKGROUND
+		BACKGROUND = WHITE
+		for sprite in iter(self.all_sprites_group): sprite.kill()
+		self.on_settings_menu = True
+		self.load_screen(settingsmenu)
+
+
+	def change_resolution(self):
+		print("Calling change resolution")
+		for field in iter(self.inputfield_group):
+			if field.nbr == 0:
+				w = int(field.crt_txt)
+			elif field.nbr == 1:
+				h = int(field.crt_txt)
+		assert w and h, ("Either width or height isn't defined")
+
+		old_w = WIDTH
+		old_h = HEIGHT
+		with open("./settings.py", "r") as file:
+			settings_txt = file.readlines()
+
+		w_h_lines = [None, None]
+		i = 0
+		for line in settings_txt:
+			if line[:5] == "WIDTH":
+				w_h_lines[0] = i
+			elif line[:6] == "HEIGHT":
+				w_h_lines[1] = i
+			i+=1
+
+		assert w_h_lines[0]!=None and w_h_lines[1]!=None, "Couldn't find WIDTH or HEIGHT"
+		settings_txt[w_h_lines[0]] = "WIDTH = {}\n".format(w)
+		settings_txt[w_h_lines[1]] = "HEIGHT = {}\n".format(h)
+
+		with open("./settings.py", "w") as file:
+			for line in settings_txt:
+				file.write(line)
+
+
+
+		
+
+
+
+		#resized_game_surf = pgm.transform.scale(self.screen, (w, h)
+		#self.screen = resized_game_surf
+		#del resized_game_surf
+
+
 
 
 print("LOADING...")

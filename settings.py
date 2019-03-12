@@ -3,6 +3,7 @@ import os
 #all settings and global functions of Pixcel Brawl
 
 #Window definitions
+#WIDTH must come before HEIGTH or unexpected errors could occur
 WIDTH = 854
 HEIGHT = 480
 FPS = 60

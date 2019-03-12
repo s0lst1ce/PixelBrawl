@@ -16,12 +16,13 @@ vec = pgm.math.Vector2
 
 projectiles_list = []
 
+
 class Player(pgm.sprite.Sprite):
 	"""player's sprite class"""
 	def __init__(self, x, y, profile):
 		pgm.sprite.Sprite.__init__(self)
 		self.load_sprites()
-		self.image = self.sprt_list[self.current_sprite_int]
+		self.image = self.sprt_list[0]
 		self.rect = self.image.get_rect()
 		self.profile = eval("PLAYER_PROFILE_{}".format(profile))
 		self.rect.center = (x, y)
@@ -30,41 +31,30 @@ class Player(pgm.sprite.Sprite):
 		self.pos = vec(x, y)
 		self.acc = vec(0, 0)
 		self.vel = vec(0, 0)
+
+		#init players attributes
 		self.can_jump = True
 		self.hp = PLAYER_HP
 		self.time_of_jump = time.time()
-		self.last_anim_time = 0
+
+		#init weapons attributes
 		self.has_wpn = False
-		self.last_side = 1
+		self.last_side = 1 #used to determine the way the bullet will be shot -1 = left & 1 = right
 		self.last_time = 0
 		self.started_to_reload = 0
 		self.weapon = None
-		self.last_idx = 0
-		print("{} dict is ->".format(self) ,self.__dict__)
+
+		#init animation attributes
+		self.last_dis = 0 #sets the disposition of the player image: 0 = idle ; 1 = left ; 2 = right ; 3 = up
+		self.anim_idxs = [0,2,4,6]
 
 
 	def load_sprites(self):
 		print("Loading {} sprites".format(self))
 		self.path = "./Sprites/Players/Lizard/"
 		self.sprt_list = []
-		self.current_sprite_int = 0
-#		crt_radical = ""
-#		crt_radical_sprt_list = []
-#		crt_nested_list_idx = 0
 		for sprt_file in os.listdir(self.path):
 			self.sprt_list.append(pgm.image.load(str(self.path+sprt_file)).convert_alpha())
-#			sprt_file_name = sprt_file.split(".")[0]
-#			print("Sprite file name:\t{}, with 2 particules:\t{}".format(sprt_file, sprt_file.split("-")))
-#			if sprt_file_name.split("-")[0] == crt_radical:
-#				crt_radical_sprt_list.insert(int(sprt_file_name.split("-")[1]), sprt_file)
-#			else:
-#				if len(crt_radical_sprt_list) != 0:
-#					for sprt in crt_radical_sprt_list: self.sprt_list.append(pgm.image.load(str(self.path+sprt)).convert_alpha())
-#				crt_radical_sprt_list = []
-#				crt_radical = sprt_file_name.split("-")[0]
-#				crt_radical_sprt_list.insert(int(sprt_file_name.split("-")[1]), sprt_file)
-
-			#self.sprt_list.append(pgm.image.load(str(self.path +sprt_file)).convert_alpha())
 		print("Sprite list is:\t{}".format(self.sprt_list))
 
 	def update(self):
@@ -72,31 +62,32 @@ class Player(pgm.sprite.Sprite):
 		self.acc = vec(0, 0.5)
 		#self.vel = vec(0,0)
 
-		#handling user input
+		#fetching pressed keys
 		pressed_keys = pgm.key.get_pressed()
-		#determining if the player want to go left (1) or right (2) or idle (0)
-		self.walking_dir = 0
+
+		#setting player to idle direction
+		self.animate()
+		
 		#accelarating left
 		if pressed_keys[eval("pgm."+self.profile[0])]:
 			self.acc.x = - PLAYER_ACCELERATION
 			self.last_side = -1
-			self.walking_dir = 1
-			#print("Turning left -> Last side is {}".format(self.last_side))
+			self.animate(dis=1)
+
 		#accelerating right
 		if pressed_keys[eval("pgm."+self.profile[1])]:
 			self.acc.x = PLAYER_ACCELERATION
 			self.last_side = 1
-			self.walking_dir = 2
-			#print("Turning right -> Last side is {}".format(self.last_side))
+			self.animate(dis=2)
+
 		#jumping
-		if not pressed_keys[eval("pgm."+self.profile[2])]:
-			self.can_jump = False
-			#dirty fix
+		if not pressed_keys[eval("pgm."+self.profile[2])]:self.can_jump = False #dirty fix
 
 		if pressed_keys[eval("pgm."+self.profile[2])]:
 			if self.can_jump:
 				self.time_of_jump = time.time()
 				self.acc.y = - PLAYER_ACCELERATION * 2
+				self.animate(dis=3)
 				if self.vel.y <= -7:
 					self.can_jump = False
 			
@@ -117,8 +108,6 @@ class Player(pgm.sprite.Sprite):
 			if pressed_keys[eval("pgm."+self.profile[5])]:
 				self.shoot()
 
-		#pickup item -> find a way to use the groups in the sprites section
-
 		#applying friction
 		self.acc += self.vel * PLAYER_FRICTION
 		#movement
@@ -126,36 +115,17 @@ class Player(pgm.sprite.Sprite):
 		self.pos += self.vel + 0.5 * self.acc
 
 		self.rect.center = self.pos
-		self.animate()
 
-	def animate(self):
-		'''work in progress'''
-		self.anim_time = pgm.time.get_ticks()
-		print("{} ticks has elapsed since last animation".format(self.anim_time-self.last_anim_time))
-		if self.walking_dir == 1:
-			crt_idx = (2,3)
-		elif self.walking_dir == 2:
-			crt_idx = (4,5)
-		elif self.walking_dir == 0:
-			if self.can_jump: #use another condition
-				crt_idx = (6, 6)
+	def animate(self, dis=0):
+		if dis == self.last_dis:
+			#currently only works for animations made of 2 sprites per disposition
+			if self.image == self.sprt_list[self.anim_idxs[dis]]:
+				self.image = self.sprt_list[self.anim_idxs[dis]+1]
 			else:
-				crt_idx = (0,1)
+				self.image = self.sprt_list[self.anim_idxs[dis]]
 
-		if crt_idx[0] >= self.last_idx <= crt_idx[1]:
-			if self.last_idx == crt_idx[1]:
-				crt_idx = crt_idx[0]
-			#elif (self.last_anim_time - self.anim_time)%20 == 0:
-			else:
-				crt_idx = self.last_idx + 1
 		else:
-			crt_idx = crt_idx[0]
-
-		self.last_idx = crt_idx
-		print(crt_idx)
-		self.image = self.sprt_list[crt_idx]
-		self.last_anim_time == pgm.time.get_ticks()
-
+			self.image = self.sprt_list[self.anim_idxs[dis]]
 
 	def pickup(self, coll_dict):
 		self.coll_dict = coll_dict
@@ -164,7 +134,7 @@ class Player(pgm.sprite.Sprite):
 			if self.has_wpn:
 				self.weapon.rect.y = self.rect.y + self.rect.height - self.weapon.rect.height
 			self.has_wpn = True
-			print("Picking up:    ", self.coll_dict)
+			#print("Picking up:\t", self.coll_dict)
 			for self in self.coll_dict.keys(): #is using "self" ok for a loop ?
 				print(self)
 				self.weapon = self.coll_dict[self][0]
@@ -325,7 +295,7 @@ class Explosive(pgm.sprite.Sprite):
 		return ((pt2[0]-pt1[0])/2 ,(pt2[1]-pt1[1])/2)
 
 	def get_pjt_dir(self):
-		'''Make algorithm to equaliy place all projectile in an
+		'''Make algorithm to equally place all projectile in an
 		expanding circle trajectory
 		see https://forums.futura-sciences.com/mathematiques-superieur/376022-coordonnes-dun-point-de-triangle-isocele.html
 		& https://www.maths-forum.com/superieur/trouver-les-coordonnees-point-dans-triangle-isocele-t77086.html
@@ -350,7 +320,10 @@ class Explosive(pgm.sprite.Sprite):
 			reduced_pt_div = max(crt_pt)
 			crt_dir = (math.ceil(crt_pt[0]/reduced_pt_div), math.ceil(crt_pt[1]/reduced_pt_div))
 			pjts_dirs.append(crt_dir)
-		print("\nDirections for the projectiles will be \n{}".format(pjts_dirs))
+		i = 0
+		for j in pjts_dirs:
+			i+=1
+			print("\nDirection for the {} projectile is \t{}".format(i,j))
 		return pjts_dirs
 
 	def explode(self):
@@ -394,7 +367,7 @@ class TextSurface(pgm.sprite.Sprite):
 	fix the false alpha background -> due to colorkey ?
 	also add an offset for the size of the text box to make it more readable
 	"""
-	def __init__(self, x, y, text, fg_color=RED, bg_color=None):
+	def __init__(self, x, y, text, fg_color=WHITE, bg_color=None):
 		pgm.sprite.Sprite.__init__(self)
 		self.text = text
 		self.bg_color = bg_color
@@ -464,7 +437,9 @@ class TextButton(pgm.sprite.Sprite):
 
 
 class ImageButton(pgm.sprite.Sprite):
-	"""docstring for ImageButton"""
+	"""docstring for ImageButton
+	maybe add another surface under the image which would change colors when hovered ?
+	or just modify the color of the pixels of the image"""
 	def __init__(self, x, y, image, action=None):
 		pgm.sprite.Sprite.__init__(self)
 		self.x = x
@@ -475,6 +450,7 @@ class ImageButton(pgm.sprite.Sprite):
 		self.rect.y = y - (self.rect.h/2)
 		self.action = action
 		self.acting = False
+		self.was_hovered = False
 
 	def chg_color(self, new_fg_color, new_bg_color):
 		self.txt_font.render_to(self.image, (0, 0), self.text, fgcolor=new_fg_color, bgcolor=new_bg_color)
@@ -483,33 +459,33 @@ class ImageButton(pgm.sprite.Sprite):
 		self.events = pgm.event.get()
 		self.mouse_pos = pgm.mouse.get_pos()
 		if (self.mouse_pos[0]>= self.rect.x and self.mouse_pos[0]<= self.rect.x + self.rect.w) and (self.mouse_pos[1]>= self.rect.y and self.mouse_pos[1] <=self.rect.y + self.rect.h) :
-			self.on_hover()
+			self.was_hovered = True
 			self.mouse_clicks = pgm.mouse.get_pressed()
 			if self.mouse_clicks[0]:
 				self.acting = True
 		elif self.was_hovered:
 			self.was_hovered = False
-			self.chg_color(self.fg_color, self.bg_color)
+			pass
 
-	def on_hover(self):
-		self.chg_color(self.fg_color, self.on_hover_bg_color)
-		self.was_hovered = True
 
 class InputField(pgm.sprite.Sprite):
 	"""docstring for InputField, heavily depends on TextSurface. Just a prototype, not very well written
-	add a background image to help the user determine the nature of the sprite and its rect"""
-	def __init__(self, x, y, hint_text, fg_color=BLUE, bg_color=None):
+	add a background image/surface to help the user determine the nature of the sprite and its rect"""
+	def __init__(self, x, y, hint_text, fg_color=BLUE, bg_color=None, nbr=None):
 		pgm.sprite.Sprite.__init__(self)
+		self.nbr = nbr
+		assert (self.nbr != None), "InputField isn't bound"
 		self.hint_text = self.crt_txt = hint_text
 		self.fg_color = fg_color
 		self.bg_color = bg_color
-		self.txt_displayer = TextSurface(x, y, self.hint_text, LIGHT_GREY, self.bg_color)
+		self.txt_displayer = TextSurface(x, y, str(self.hint_text), LIGHT_GREY, self.bg_color)
 		self.rect = self.txt_displayer.rect
 		self.image = self.txt_displayer.image
 		self.was_hovered = self.focused = False
-
+		self.returned = False
 
 	def update(self, key=None):
+		#if self.returned: self.crt_txt = ""
 		self.mouse_pos = pgm.mouse.get_pos()
 		self.key = key
 		if (self.mouse_pos[0]>= self.rect.x and self.mouse_pos[0]<= self.rect.x + self.rect.w) and (self.mouse_pos[1]>= self.rect.y and self.mouse_pos[1] <=self.rect.y + self.rect.h) :
@@ -519,27 +495,27 @@ class InputField(pgm.sprite.Sprite):
 			self.mouse_clicks = pgm.mouse.get_pressed()
 			if self.mouse_clicks[0]:
 				self.focused = True
+
 		elif self.was_hovered:
 			self.was_hovered = False
-			#fix
-			if self.crt_txt == "": self.txt_displayer.chg_txt(self.hint_text)
+			if self.crt_txt == "": self.txt_displayer.chg_txt(str(self.hint_text))
 			self.txt_displayer.chg_color()
 
 		if self.focused and self.key!=None:
-			'''new_txt is the text that will replace the currently drawn one. crt text is the text currenrtly being
-			drawn. str_to_append is the string which will be joined to new_txt
-			simplify the number of variables'''
 			if self.crt_txt == self.hint_text:
 				self.crt_txt = ""
 
 			self.new_txt = self.crt_txt
 			self.str_to_append = ""
-			#print("KEYDOWN dict:\t{}".format(pgm.event.))
 			if self.key == "\b":
 				if len(self.str_to_append) == 0:
 					self.crt_txt = self.crt_txt[:-1]
 				else:
 					self.str_to_append = self.str_to_append[:-1]
+
+			elif self.key == "\r":
+				self.returned = True
+				self.focused = False
 
 			else:
 				self.str_to_append = self.str_to_append + self.key

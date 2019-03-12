@@ -12,8 +12,8 @@
 
 ### v0.3-a3 - IN DEVELOPMENT:
 
-- [ ] Add GUI
-  - [ ] Add Menus
+- [x] Add GUI
+  - [x] Add Menus
   - [x] Add Text
   - [x] Add Buttons
   - [x] Add Typping entry
@@ -23,8 +23,7 @@
 
 ### v0.4-b1:
 
-- [x] Make a cx_Freeze script to easilly distribute game
-- [ ] Add en error log to improve community feedback
+- [x] Make a compiling script to easilly distribute game
 - [x] Fix transparency
 - [ ] Replace Pygame rectangles by drawn sprites
 - [ ] Add animations
