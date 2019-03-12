@@ -13,6 +13,34 @@ The game is a multiplayer shared screen. The players all compete in a small aren
 
 ![v0.1-a1 Test map screenshot](https://raw.githubusercontent.com/NotaSmartDev/assets/master/Capture.PNG)
 
-## How to Play:
+
+
+
+
+
+
+## Instructions:
+
+### Installation:
+
+##### Without python:
+
+If you'r under Linux you can just download the version you want by following this link. The Mega folder contains all versions compiled for Linux. I haven't compiled any version for windows so you'll probably have to wait until the full release to get it unless anyone ask for it before that. Meanwhile refer to the next section to get the game.
+
+Once you have the compiled version downloaded simply extract its contents (if compressed) and run onto the binary file (the one called `PixelBrawl-ALPHA`). That's it ! I hope you enjoy. Don't hesitate to give me your feedback !
+
+##### With python:
+
+If you have the python interpreter installed all you have to do is to download the source code of the latest stable (`v0.3-a3`) or experimental (`master-branch`) version. Extract the source code into a directory then open a terminal (or command prompt under windows) in the directory and type:
+
+- UNIX: `python3 main.py`
+- Windows: `py main.py`
+
+That's it ! I hope you enjoy. Don't hesitate to give me your feedback !
+
+
+
+### How to play:
+
 The game is played with 5 keys. Three to move up, left and right. Then one to pickup items and another to shoot. The last one is meant to crouch although this function has not been implemented in the alpha yet.
 The final version will contain a settings screen which will enable players to cutomize the keymaps.
