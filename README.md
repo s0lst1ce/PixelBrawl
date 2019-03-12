@@ -25,7 +25,7 @@ The game is a multiplayer shared screen. The players all compete in a small aren
 
 ##### Without python:
 
-If you'r under Linux you can just download the version you want by following this link. The Mega folder contains all versions compiled for Linux. I haven't compiled any version for windows so you'll probably have to wait until the full release to get it unless anyone ask for it before that. Meanwhile refer to the next section to get the game.
+If you'r under Linux you can just download the version you want by following this [link](https://mega.nz/#F!YOwFhSbL!fjnwdNnDcOq_z7YAiVQ-BA). The Mega folder contains all versions compiled for Linux. I haven't compiled any version for windows so you'll probably have to wait until the full release to get it unless anyone ask for it before that. Meanwhile refer to the next section to get the game.
 
 Once you have the compiled version downloaded simply extract its contents (if compressed) and run onto the binary file (the one called `PixelBrawl-ALPHA`). That's it ! I hope you enjoy. Don't hesitate to give me your feedback !
 
