@@ -3,7 +3,9 @@ A little and simple yet (hopefully ! ) fun game. The game is made with python 3.
 
 ## Development History:
 I got the idea of coding a game in python a few months ago when I couldn't think of anything else new and entertaining to write. Moreover I thought I'd be a good way to play a simple game with some members of my family & friends. Hopefully you will have fun with it too ! I do not spend a lot of time coding it though so don't expect any regular update. To code this game I first had to get some knowledge on the [Pygame](https://pygame.org/) module. I mostly read the official documentation to learn how to use pygame. I also used [this template](https://github.com/kidscancode/pygame_tutorials/blob/master/pygame%20template.py) to begin my game. I want to thank [KidsCanCode](https://github.com/kidscancode/) [(LISCENCE)](https://github.com/kidscancode/pygame_tutorials/LICENSE) for this much apreciated time saving help ! 
-If you are intersted in helping in the development please write to me. Also please feel free to send advices and recomendations. They will all be taken into consideration. *NOTICE: If you are an artist and are interested in making custom sprites for this game you will be welcome !*
+If you are intersted in helping in the development please write to me. Also please feel free to send advices and recomendations. They will all be taken into consideration.
+
+*NOTICE: If you are an artist and are interested in making custom sprites for this game you will be welcome !*
 
 ## The Game:
 The game is a multiplayer shared screen. The players all compete in a small arena and must be the last one standing in order to win. Teammatches are planned although I have not started working on them yet.
@@ -57,11 +59,11 @@ The goal of the game is to kill your opponent(s). To do this your first task is 
 
 Then you're going to need to pickup the said weapon. For this use the pickup key:
 
-- Player1: The `down` arrow key
+- Player1: The `m` 
 - Player2: `s`
 
 Once that's done you can shoot at whatever seemd best to kill you enemy by pressing:
-- Player1: `space` (aka the spacebar)
+- Player1: `n`
 - Player2: `c`
 
 ##### Configuration
