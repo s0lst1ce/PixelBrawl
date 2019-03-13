@@ -19,3 +19,5 @@
 + added settings menu
 + added possibility to change resolution (though `change_resolution()`)
 ~ fixed bug where button's function was called every frames
+
+### v0.4-b1:

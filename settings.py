@@ -1,13 +1,14 @@
 import os
+import pathlib as path
 
 #all settings and global functions of Pixcel Brawl
 
 #Window definitions
 #WIDTH must come before HEIGTH or unexpected errors could occur
-WIDTH = 854
-HEIGHT = 480
+WIDTH = 1920
+HEIGHT = 1080
 FPS = 60
-TITLE = "Pixel Brawl - v0.3-a3 DEV"
+TITLE = "Pixel Brawl - v0.3-a3"
 
 #Color definition
 ALPHA = (255,255,255,255)
@@ -33,12 +34,12 @@ INPUT_MAX_LENGTH = 10
 
 #Player physics properties definition
 PLAYER_ACCELERATION = 0.5
-PLAYER_FRICTION = - 0.12
+PLAYER_FRICTION = -0.12
 
 #player properties
 PLAYER_WIDTH = 30
 PLAYER_HEIGHT = 50
-JUMPING_COUNTDOWN = 0.5 #in s
+JUMPING_COUNTDOWN = 0.5 #in seconds
 PLAYER_HP = 100
 
 #players key profiles
@@ -52,4 +53,11 @@ PLAYER_PROFILE_3 = None
 PROJECTILE_SPEED = 10 #this must always be < PLAYER_WIDTH
 
 #paths
-#img = os.path("curdir")
+IMG_PLAYER_FOLDER = path.Path("Sprites/Players/")
+IMG_MISC_FOLDER = path.Path("Sprites/Misc/")
+
+'''if os.name == posix:
+	IMG_MISC_FOLDER = IMG_MISC_FOLDER.as_posix()
+	IMG_PLAYER_FOLDER = IMG_PLAYER_FOLDER.as_posix()
+elif os.name == nt:
+	IMG_MISC_FOLDER = IMG_MISC_FOLDER.as_'''

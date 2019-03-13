@@ -182,7 +182,7 @@ class Game:
 	def update(self):
 		self.gui_update()
 		if self.game_started and not self.game_paused:
-			self.fps_counter.chg_txt(str(int(self.clock.get_fps()))+"FPS")
+			#self.fps_counter.chg_txt(str(int(self.clock.get_fps()))+"FPS")
 			self.game_update()
 
 	def gui_update(self):
@@ -351,13 +351,14 @@ class Game:
 		for gui_element in iter(self.gui_group): gui_element.kill()
 		self.game_paused = False
 
-# InputField Settings Screen handler functions
+#settings screen handler functions
 
 	def show_settings_screen(self):
 		global BACKGROUND
 		BACKGROUND = WHITE
 		for sprite in iter(self.all_sprites_group): sprite.kill()
 		self.on_settings_menu = True
+		self.select_profile_1()
 		self.load_screen(settingsmenu)
 
 
@@ -391,6 +392,17 @@ class Game:
 		with open("./settings.py", "w") as file:
 			for line in settings_txt:
 				file.write(line)
+
+
+	def select_profile_1(self):
+		self.selected_profile = 1
+	def select_profile_2(self):
+		self.selected_profile = 2
+	def show_crt_keynap(self):
+		pass
+
+	def change_keymap(self):
+		pass
 
 
 

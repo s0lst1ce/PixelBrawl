@@ -51,7 +51,7 @@ class Player(pgm.sprite.Sprite):
 
 	def load_sprites(self):
 		print("Loading {} sprites".format(self))
-		self.path = "./Sprites/Players/Lizard/"
+		self.path = "Sprites/Players/Lizard/"
 		self.sprt_list = []
 		for sprt_file in os.listdir(self.path):
 			self.sprt_list.append(pgm.image.load(str(self.path+sprt_file)).convert_alpha())
@@ -411,7 +411,7 @@ class TextButton(pgm.sprite.Sprite):
 	"""docstring for Button how could I make it inherit from TextSurface ?"""
 	def __init__(self, x, y, text, action=None, bg_color=BLACK, fg_color=GREEN):
 		pgm.sprite.Sprite.__init__(self)
-		self.text = text
+		self.text = str(text)
 		self.action = action
 		self.bg_color = bg_color
 		self.fg_color = fg_color
@@ -444,7 +444,7 @@ class ImageButton(pgm.sprite.Sprite):
 		pgm.sprite.Sprite.__init__(self)
 		self.x = x
 		self.y = y
-		self.image = pgm.image.load(str("./"+image)).convert_alpha()
+		self.image = pgm.image.load(str(str(IMG_MISC_FOLDER.iterdir()))).convert_alpha()
 		self.rect = self.image.get_rect()
 		self.rect.x = x - (self.rect.w/2)
 		self.rect.y = y - (self.rect.h/2)
