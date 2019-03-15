@@ -10,9 +10,9 @@
 - [x] Add handler to load map data from different files
 - [x] Add different types of projectiles & re-write Projectile sprite class
 
-### v0.3-a3 - IN DEVELOPMENT:
+### v0.3-a3 - RELEASED:
 
-- [x] Add GUI
+- [x] Add GUI:
   - [x] Add Menus
   - [x] Add Text
   - [x] Add Buttons
@@ -21,13 +21,16 @@
 - [x] Add spawnpoints
 - [x] Add full shared screen multiplayer support
 
-### v0.4-b1:
+### v0.4-b1 - IN DEVELOPEMENT:
 
 - [x] Make a compiling script to easilly distribute game
 - [x] Fix transparency
 - [ ] Replace Pygame rectangles by drawn sprites
 - [ ] Add animations
 - [ ] Add sound
+- [ ] Add settings:
+  - [ ] FPS setting
+  - [ ] Controls settings
 
 ### v0.5-b2:
 
@@ -38,17 +41,17 @@
 ### v0.6-b3:
 
 - [ ] Add explosives
-- [ ] General code improvement
+- [ ] General code improvement:
   - [x] Re-write the `start()` function with loops to handle different maps
   - [ ] Improve weapons handler & re-write
   - [x] Improve Groups handler 
-  - [ ] Add mask collisions for better visual feedback & gameplay
+  - [ ] Add *premonition* collisions for better visual feedback & gameplay
 - [ ] Add throwables
 
 
 ### v1.0:
 
-- [ ] Fix various bugs
+- [ ] Fix various bugs:
   - [ ] Fix sprite update order
   - [ ] Shooting interval
   - [x] GFX glitches with "ghost" bullets
@@ -61,3 +64,9 @@
 ### v1.1:
 
 - [ ] Create Map Editor
+
+
+
+### v1.2:
+
+- [ ] Add online multiplayer support

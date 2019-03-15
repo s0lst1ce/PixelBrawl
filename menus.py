@@ -6,11 +6,13 @@ also it's far from being pythonic
 
 NB: change the nested strings + "#" which is a flag for keyword argument (see main.py: screen_loader()) '''
 settings = {
-	"TextSurface": [[WIDTH/2, HEIGHT/10, "Settings", "#fg_color=BLACK"],[WIDTH/4, HEIGHT/10*2, "Resolution:", "#fg_color=BLACK"]],
-	"TextButton": [[WIDTH/2, HEIGHT/8*3.5, "Main Menu", """#action='''show_start_screen'''""", '#bg_color=ORANGE', '#fg_color=WHITE'],
-	[WIDTH/3*2.5, HEIGHT/10*2, "Apply", """#action='''change_resolution'''""", '#bg_color=GREEN', '#fg_color=WHITE']],
+	"TextSurface": [[WIDTH/2, HEIGHT/10, "Settings", "#fg_color=BLACK"],[WIDTH/4, HEIGHT/10*2, "Resolution:", "#fg_color=BLACK"],[WIDTH/2, HEIGHT/8*3, "Keymaps", "#fg_color=BLACK"]],
+	"TextButton": [[WIDTH/2, HEIGHT/8*7, "Main Menu", """#action='''show_start_screen'''""", '#bg_color=ORANGE', '#fg_color=WHITE'],
+	[WIDTH/3*2.5, HEIGHT/10*2, "Apply", """#action='''change_resolution'''""", '#bg_color=GREEN', '#fg_color=WHITE'],
+	[WIDTH/3*1.8, HEIGHT/8*3, "1", """#action='''select_profile_1'''""", '#bg_color=BLUE', '#fg_color=WHITE'],
+	[WIDTH/3*2, HEIGHT/8*3, "2", """#action='''select_profile_2'''""", '#bg_color=CYAN', '#fg_color=WHITE']],
 	"ImageButton": [],
-	"InputField": [[WIDTH/3*1.5, HEIGHT/10*2, "854", "#nbr=0"],[WIDTH/3*2, HEIGHT/10*2, "480", "#nbr=1"]],
+	"InputField": [[WIDTH/3*1.5, HEIGHT/10*2, "WIDTH", "#nbr=0"],[WIDTH/3*2, HEIGHT/10*2, "HEIGHT", "#nbr=1"]],
 }
 pause = {
 	"TextSurface": [[WIDTH/2, HEIGHT/6, "Game has been paused", "#fg_color=YELLOW"]],
@@ -30,7 +32,7 @@ newgame = {
 }
 score = {
 	"TextSurface": [[WIDTH/2, HEIGHT/4, "Game has ended !", "#fg_color=YELLOW"]],
-	"TextButton": [[WIDTH/2, HEIGHT/2, "Main Menu", """#action='''show_start_screen'''""", '#bg_color=BLUE', '#fg_color=WHITE']],
+	"TextButton": [[WIDTH/2, HEIGHT/2, "Main Menu", """#action='''show_start_screen'''""", '#bg_color=ORANGE', '#fg_color=WHITE']],
 	"ImageButton": []
 }
 loading = {

@@ -161,20 +161,6 @@ class Game:
 			if (pressed_keys[eval("pgm.K_ESCAPE")] or pressed_keys[eval("pgm.K_{}".format(PAUSE_KEY))]) and self.game_started:
 				if self.game_paused: self.resume_game()
 				else: self.show_pause_screen()
-			if event.type == pgm.VIDEORESIZE: #/!\ DEPRECATED /!\
-				'''resize screen
-				DEPRECATED -> only meant to stay here as an example but will never execute as pgm.RESIZABLE is set to False
-				in display creation'''
-				#getting the size of the current surface representing the display & overwritting settings.py config 
-				WIDTH, HEIGHT = event.w, event.h
-				print("Display info\t{}".format(pgm.display.Info()))
-				print(self.main_window)
-				#changing resolution of the screen surface
-				tmp_game_surf = pgm.transform.scale(self.screen, (WIDTH, HEIGHT))
-				print(tmp_game_surf)
-				self.screen = tmp_game_surf
-				#print("Screen {} should be {}x{}".format(self,screen, WIDTH, HEIGHT))
-
 
 		if len(self.player_group) == 1: #what if both players die at the same time ? too improbable ?
 			self.show_score_screen()
@@ -182,7 +168,7 @@ class Game:
 	def update(self):
 		self.gui_update()
 		if self.game_started and not self.game_paused:
-			self.fps_counter.chg_txt(str(int(self.clock.get_fps()))+"FPS")
+			#self.fps_counter.chg_txt(str(int(self.clock.get_fps()))+"FPS")
 			self.game_update()
 
 	def gui_update(self):
@@ -351,13 +337,22 @@ class Game:
 		for gui_element in iter(self.gui_group): gui_element.kill()
 		self.game_paused = False
 
-# InputField Settings Screen handler functions
+#settings screen handler functions
+
+	def get_settings_file(self):
+		with open("settings.py", "r") as file:
+			settings_txt = file.readlines()
+		return settings_txt
+
+
+
 
 	def show_settings_screen(self):
 		global BACKGROUND
 		BACKGROUND = WHITE
 		for sprite in iter(self.all_sprites_group): sprite.kill()
 		self.on_settings_menu = True
+		self.select_profile_1()
 		self.load_screen(settingsmenu)
 
 
@@ -369,38 +364,48 @@ class Game:
 			elif field.nbr == 1:
 				h = int(field.crt_txt)
 		assert w and h, ("Either width or height isn't defined")
+		assert w/16==h/9, "can't change resolution to a ratio different than 16:9"
 
 		old_w = WIDTH
 		old_h = HEIGHT
-		with open("./settings.py", "r") as file:
-			settings_txt = file.readlines()
+		ratio = h/576
+		settings_txt = self.get_settings_file()
 
-		w_h_lines = [None, None]
+		mattering_lines = [None, None, None]
 		i = 0
 		for line in settings_txt:
 			if line[:5] == "WIDTH":
-				w_h_lines[0] = i
+				mattering_lines[0] = i
 			elif line[:6] == "HEIGHT":
-				w_h_lines[1] = i
+				mattering_lines[1] = i
+			elif line[:9] == "FONT_SIZE":
+				mattering_lines[2] = i
 			i+=1
 
-		assert w_h_lines[0]!=None and w_h_lines[1]!=None, "Couldn't find WIDTH or HEIGHT"
-		settings_txt[w_h_lines[0]] = "WIDTH = {}\n".format(w)
-		settings_txt[w_h_lines[1]] = "HEIGHT = {}\n".format(h)
+		for line in mattering_lines:
+			assert line!=None, "One of the settings line couldn't be find"
+		settings_txt[mattering_lines[0]] = "WIDTH = {}\n".format(w)
+		settings_txt[mattering_lines[1]] = "HEIGHT = {}\n".format(h)
+		#had to set 20 as hard coded value for the player can change the value in settings.py
+		settings_txt[mattering_lines[2]] = "FONT_SIZE = {}\n".format(25*ratio)
 
 		with open("./settings.py", "w") as file:
 			for line in settings_txt:
 				file.write(line)
 
+		#quits the game as changes only occur after reboot
+		self.playing = False
 
 
-		
+	def select_profile_1(self):
+		self.selected_profile = 1
+	def select_profile_2(self):
+		self.selected_profile = 2
+	def show_crt_keymap(self):
+		pass
 
-
-
-		#resized_game_surf = pgm.transform.scale(self.screen, (w, h)
-		#self.screen = resized_game_surf
-		#del resized_game_surf
+	def change_keymap(self):
+		pass
 
 
 

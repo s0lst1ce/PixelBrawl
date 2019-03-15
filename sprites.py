@@ -47,11 +47,12 @@ class Player(pgm.sprite.Sprite):
 		#init animation attributes
 		self.last_dis = 0 #sets the disposition of the player image: 0 = idle ; 1 = left ; 2 = right ; 3 = up
 		self.anim_idxs = [0,2,4,6]
+		self.frames_since_last_anim = 0
 
 
 	def load_sprites(self):
 		print("Loading {} sprites".format(self))
-		self.path = "./Sprites/Players/Lizard/"
+		self.path = os.path.join(IMG_PLAYER_FOLDER,"Lizard/")
 		self.sprt_list = []
 		for sprt_file in os.listdir(self.path):
 			self.sprt_list.append(pgm.image.load(str(self.path+sprt_file)).convert_alpha())
@@ -60,7 +61,7 @@ class Player(pgm.sprite.Sprite):
 	def update(self):
 		#print("Player Sprite is updating last side is {}".format(self.last_side))
 		self.acc = vec(0, 0.5)
-		#self.vel = vec(0,0)
+		self.frames_since_last_anim +=1
 
 		#fetching pressed keys
 		pressed_keys = pgm.key.get_pressed()
@@ -118,11 +119,12 @@ class Player(pgm.sprite.Sprite):
 
 	def animate(self, dis=0):
 		if dis == self.last_dis:
-			#currently only works for animations made of 2 sprites per disposition
-			if self.image == self.sprt_list[self.anim_idxs[dis]]:
-				self.image = self.sprt_list[self.anim_idxs[dis]+1]
-			else:
-				self.image = self.sprt_list[self.anim_idxs[dis]]
+			if self.frames_since_last_anim == ANIM_DELAY:
+				#currently only works for animations made of 2 sprites per disposition
+				if self.image == self.sprt_list[self.anim_idxs[dis]]:
+					self.image = self.sprt_list[self.anim_idxs[dis]+1]
+				else:
+					self.image = self.sprt_list[self.anim_idxs[dis]]
 
 		else:
 			self.image = self.sprt_list[self.anim_idxs[dis]]
@@ -358,14 +360,12 @@ class ExplosiveProjectile(pgm.sprite.Sprite):
 			self.kill()
 
 	def distance_from_orig(self):
-		#print("Will square {}".format(((self.orig_x - self.rect.x)^2) + ((self.orig_y - self.rect.y)^2)))
 		return math.sqrt((self.orig_x - self.rect.x)**2 + (self.orig_y - self.rect.y)**2)
 		
 class TextSurface(pgm.sprite.Sprite):
 	"""docstring for Text, is there a way to delete a surface or remove
 	a subsurface for a parent surface ?
 	fix the false alpha background -> due to colorkey ?
-	also add an offset for the size of the text box to make it more readable
 	"""
 	def __init__(self, x, y, text, fg_color=WHITE, bg_color=None):
 		pgm.sprite.Sprite.__init__(self)
@@ -375,7 +375,7 @@ class TextSurface(pgm.sprite.Sprite):
 		if self.bg_color == None: self.bg_color=ALPHA
 		if self.bg_color!=ALPHA: self.on_hover_bg_color = (self.bg_color[0]-math.floor(0.3*self.bg_color[0]), self.bg_color[1]-math.floor(0.3*self.bg_color[1]), self.bg_color[2]-math.floor(0.3*self.bg_color[2]))
 		else: self.on_hover_bg_color = self.bg_color
-		self.txt_font = pgm_frtp.Font(None, 20)
+		self.txt_font = pgm_frtp.Font(None, FONT_SIZE)
 		self.txt_rect = self.txt_font.get_rect(self.text)
 		self.image = pgm.Surface((self.txt_rect.w+TEXT_CORR_W, self.txt_rect.h+TEXT_CORR_H)).convert_alpha()
 		self.image.fill(self.bg_color)
@@ -411,7 +411,7 @@ class TextButton(pgm.sprite.Sprite):
 	"""docstring for Button how could I make it inherit from TextSurface ?"""
 	def __init__(self, x, y, text, action=None, bg_color=BLACK, fg_color=GREEN):
 		pgm.sprite.Sprite.__init__(self)
-		self.text = text
+		self.text = str(text)
 		self.action = action
 		self.bg_color = bg_color
 		self.fg_color = fg_color
@@ -444,7 +444,7 @@ class ImageButton(pgm.sprite.Sprite):
 		pgm.sprite.Sprite.__init__(self)
 		self.x = x
 		self.y = y
-		self.image = pgm.image.load(str("./"+image)).convert_alpha()
+		self.image = pgm.image.load(os.path.join(IMG_MISC_FOLDER,image)).convert_alpha()
 		self.rect = self.image.get_rect()
 		self.rect.x = x - (self.rect.w/2)
 		self.rect.y = y - (self.rect.h/2)
