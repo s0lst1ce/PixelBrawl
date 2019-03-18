@@ -24,4 +24,6 @@
 \+ fixed incorrect path given in some cases (for both posix and nt filesystems)
 \+ added rule where screen resolutions must be 16:9
 \+  added GUI scaler
+\+ added player scaler
 
+\+ added player scaler

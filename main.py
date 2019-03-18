@@ -344,9 +344,6 @@ class Game:
 			settings_txt = file.readlines()
 		return settings_txt
 
-
-
-
 	def show_settings_screen(self):
 		global BACKGROUND
 		BACKGROUND = WHITE
@@ -363,7 +360,7 @@ class Game:
 				w = int(field.crt_txt)
 			elif field.nbr == 1:
 				h = int(field.crt_txt)
-		assert w and h, ("Either width or height isn't defined")
+		assert w and h, "Either width or height isn't defined"
 		assert w/16==h/9, "can't change resolution to a ratio different than 16:9"
 
 		old_w = WIDTH
@@ -371,7 +368,7 @@ class Game:
 		ratio = h/576
 		settings_txt = self.get_settings_file()
 
-		mattering_lines = [None, None, None]
+		mattering_lines = [None, None, None, None]
 		i = 0
 		for line in settings_txt:
 			if line[:5] == "WIDTH":
@@ -380,6 +377,8 @@ class Game:
 				mattering_lines[1] = i
 			elif line[:9] == "FONT_SIZE":
 				mattering_lines[2] = i
+			elif line[:5] == "SCALE":
+				mattering_lines[3] = i
 			i+=1
 
 		for line in mattering_lines:
@@ -388,12 +387,13 @@ class Game:
 		settings_txt[mattering_lines[1]] = "HEIGHT = {}\n".format(h)
 		#had to set 20 as hard coded value for the player can change the value in settings.py
 		settings_txt[mattering_lines[2]] = "FONT_SIZE = {}\n".format(25*ratio)
+		settings_txt[mattering_lines[3]] = "SCALE = {}\n".format(ratio)
 
 		with open("./settings.py", "w") as file:
 			for line in settings_txt:
 				file.write(line)
 
-		#quits the game as changes only occur after reboot
+		#quits the game as changes only occur after restart
 		self.playing = False
 
 

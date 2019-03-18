@@ -32,6 +32,8 @@ TEXT_CORR_W = 20
 TEXT_CORR_H = 5
 INPUT_MAX_LENGTH = 10
 FONT_SIZE = 25.0
+#1 is (1024*876)
+SCALE = 1.0
 
 #Player physics properties definition
 PLAYER_ACCELERATION = 0.5

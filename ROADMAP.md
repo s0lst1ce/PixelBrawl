@@ -23,14 +23,14 @@
 
 ### v0.4-b1 - IN DEVELOPEMENT:
 
-- [x] Make a compiling script to easilly distribute game
+- [ ] Make a compiling script to easilly distribute game
 - [x] Fix transparency
 - [ ] Replace Pygame rectangles by drawn sprites
 - [ ] Add animations
-- [ ] Add sound
 - [ ] Add settings:
   - [ ] FPS setting
   - [ ] Controls settings
+- [ ] Add resolution scaler
 
 ### v0.5-b2:
 

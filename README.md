@@ -68,7 +68,5 @@ Once that's done you can shoot at whatever seems best to kill you enemy by press
 
 ##### Configuration
 
-
-
 Although the game doesn't yet (see #12 ) allow you to change the controls you can still do it with some manual configurations ! To do this open the `settings.py` file into your favorite text editor and change the PLAYER PROFILE of your choice. This part of the file is documented so it tells you which key refers to what. However it doesn't come with a list of all the pygame [keys names](https://www.pygame.org/docs/ref/key.html). If you have trouble with this and can't wait for me to implement the settings in the game, post a comment on issue #12 .
 

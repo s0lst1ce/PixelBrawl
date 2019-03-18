@@ -16,7 +16,6 @@ vec = pgm.math.Vector2
 
 projectiles_list = []
 
-
 class Player(pgm.sprite.Sprite):
 	"""player's sprite class"""
 	def __init__(self, x, y, profile):
@@ -55,7 +54,12 @@ class Player(pgm.sprite.Sprite):
 		self.path = os.path.join(IMG_PLAYER_FOLDER,"Lizard/")
 		self.sprt_list = []
 		for sprt_file in os.listdir(self.path):
-			self.sprt_list.append(pgm.image.load(str(self.path+sprt_file)).convert_alpha())
+			img_surf = pgm.image.load(str(self.path+sprt_file)).convert_alpha()
+			img_surf_rect = img_surf.get_rect()
+			img_surf = pgm.transform.scale(img_surf, (round(img_surf_rect.w*SCALE), round(img_surf_rect.h*SCALE)))
+			self.sprt_list.append(img_surf)
+
+
 		print("Sprite list is:\t{}".format(self.sprt_list))
 
 	def update(self):
@@ -136,7 +140,6 @@ class Player(pgm.sprite.Sprite):
 			if self.has_wpn:
 				self.weapon.rect.y = self.rect.y + self.rect.height - self.weapon.rect.height
 			self.has_wpn = True
-			#print("Picking up:\t", self.coll_dict)
 			for self in self.coll_dict.keys(): #is using "self" ok for a loop ?
 				print(self)
 				self.weapon = self.coll_dict[self][0]
@@ -144,24 +147,19 @@ class Player(pgm.sprite.Sprite):
 				self.weapon.rect.y = self.rect.y + (self.rect.height/2)
 
 	def shoot(self):
-		print("Player is shooting & last side is {} and player is at ({};{})".format(self.last_side, self.rect.x, self.rect.y))
 		self.actual_time = pgm.time.get_ticks()
 		self.fire_interval = FPS / self.weapon.fire_rate
 		if self.weapon.magazine <= 0:
 			self.started_to_reload = pgm.time.get_ticks()
 			self.weapon.magazine = self.weapon.magazine_size
 		if (self.actual_time - self.last_time) % self.fire_interval == 0 and self.actual_time - self.started_to_reload >= self.weapon.reload_time:
-			print("Last side is {}".format(self.last_side))
 			if self.last_side == 1:
 				self.bullet = Projectile(self.weapon.rect.x + self.weapon.rect.width, self.weapon.rect.y + (self.weapon.rect.height/2), self.weapon.projectile_type, self.last_side)
 			elif self.last_side == -1:
 				self.bullet = Projectile(self.weapon.rect.x, self.weapon.rect.y + (self.weapon.rect.height/2), self.weapon.projectile_type, self.last_side)
-			else:
-				print("ERROR -> last side is {}".format(self.last_side))
 			projectiles_list.append(self.bullet)
 			self.weapon.magazine -= 1
 			self.last_time = pgm.time.get_ticks()
-			print("Player has shot")
 	
 	def damage(self, dmg_dealt):
 		self.hp -= dmg_dealt
