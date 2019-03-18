@@ -61,10 +61,11 @@
   - [ ] Improve collision checks
   - [ ] Lots of small bugfixes
 
+*From there none of the planned update are confirmed to be released. They are only ideas I've had or suggestions I've received which are non essential but would be a great addtion. I will implement them if I still have motivation to both: continue this game and find out how to make the said features work out. Don't be surprised if they never get more than ideas though, that's part of the deal which I myself did ;).
+
 ### v1.1:
 
 - [ ] Create Map Editor
-
 
 
 ### v1.2:
